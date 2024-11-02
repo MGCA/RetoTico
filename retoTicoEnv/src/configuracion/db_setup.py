@@ -62,8 +62,6 @@ class Db_setup:
             ruta_imagen TEXT,
             FOREIGN KEY (id_pregunta) REFERENCES preguntas(id_pregunta)
         )''')
-        
-        
 
         conn.commit()
         conn.close()
