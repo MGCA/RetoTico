@@ -4,6 +4,9 @@ import os
 from SistemaRetoTico.menu import Menu
 from configuracion.db_setup import Db_setup
 
+from configuracion.db_insertarDatos import Db_insertarDatos
+
+
 def get_absolute_path(file_name):
     """Función que devuelve la ruta absoluta a un archivo dado en el directorio 'music'."""
     base_path = os.path.dirname(os.path.abspath(__file__))
@@ -25,6 +28,7 @@ def play_background_music(music_file):
 def main():
     # Crear tablas si no existen
     Db_setup.create_tables()
+    Db_insertarDatos.insertar_datos()
 
     pygame.init()
     screen_width = 800
