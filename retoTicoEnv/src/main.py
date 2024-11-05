@@ -40,7 +40,7 @@ def mostrar_presentacion(screen):
         pygame.draw.rect(screen, (0, 255, 0), (loading_rect.x, loading_rect.y, loading_rect.width * i / 100, loading_rect.height))  # Progreso de la barra
 
         pygame.display.flip()  # Actualizar la pantalla
-        pygame.time.delay(20)  # Esperar un poco para simular el tiempo de carga
+        pygame.time.delay(50)  # Esperar un poco para simular el tiempo de carga
 
 
 def main():
@@ -55,7 +55,7 @@ def main():
     pygame.display.set_caption("Menú Principal")
 
     # Reproducir música de fondo
-    play_background_music('nature-reserve.wav')
+    play_background_music('music/nature-reserve.wav')
 
     # Mostrar presentación
     mostrar_presentacion(screen)
