@@ -18,28 +18,28 @@ class Db_insertarDatos:
         # Inserción de preguntas para cada categoría
         preguntas = [
             # Historia
-            ('¿En qué año se abolió el ejército en Costa Rica?', 1, 'medio'),
-            ('¿Quién fue el primer presidente de Costa Rica?', 1, 'medio'),
-            ('¿Qué batalla famosa se libró en 1856?', 1, 'medio'),
-            ('¿Qué tratado se firmó para definir las fronteras con Nicaragua?', 1, 'medio'),
-            ('¿Cuál fue el propósito principal de la Campaña Nacional?', 1, 'medio'),
+            ('¿En qué año se abolió el ejército en Costa Rica?', 1, 'baja'),
+            ('¿Quién fue el primer presidente de Costa Rica?', 1, 'baja'),
+            ('¿Qué batalla famosa se libró en 1856?', 1, 'baja'),
+            ('¿Qué tratado se firmó para definir las fronteras con Nicaragua?', 1, 'baja'),
+            ('¿Cuál fue el propósito principal de la Campaña Nacional?', 1, 'baja'),
             # Geografía
-            ('¿Cuál es el volcán más alto de Costa Rica?', 2, 'medio'),
-            ('¿Cuántas provincias tiene Costa Rica?', 2, 'medio'),
-            ('¿Cuál es el río más largo de Costa Rica?', 2, 'medio'),
-            ('¿Qué parque nacional es famoso por sus tortugas marinas?', 2, 'medio'),
-            ('¿Cuál es el pico más alto de Costa Rica?', 2, 'medio'),
+            ('¿Cuál es el volcán más alto de Costa Rica?', 2, 'media'),
+            ('¿Cuántas provincias tiene Costa Rica?', 2, 'media'),
+            ('¿Cuál es el río más largo de Costa Rica?', 2, 'media'),
+            ('¿Qué parque nacional es famoso por sus tortugas marinas?', 2, 'media'),
+            ('¿Cuál es el pico más alto de Costa Rica?', 2, 'media'),
             # Fauna y Flora
-            ('¿Cuál es el ave nacional de Costa Rica?', 3, 'medio'),
-            ('¿Qué rana es conocida por su color rojo y ojos verdes?', 3, 'medio'),
-            ('¿Qué mariposa es símbolo de transformación en Costa Rica?', 3, 'medio'),
-            ('¿Cuál es el animal que representa al perezoso en la fauna costarricense?', 3, 'medio'),
-            ('¿Qué flor es la nacional?', 3, 'medio'),
+            ('¿Cuál es el ave nacional de Costa Rica?', 3, 'media'),
+            ('¿Qué rana es conocida por su color rojo y ojos verdes?', 3, 'media'),
+            ('¿Qué mariposa es símbolo de transformación en Costa Rica?', 3, 'media'),
+            ('¿Cuál es el animal que representa al perezoso en la fauna costarricense?', 3, 'media'),
+            ('¿Qué flor es la nacional?', 3, 'media'),
             # Cultura y Tradiciones
-            ('¿Qué significa “Pura Vida”?', 4, 'medio'),
-            ('¿Qué festividad se celebra el 15 de septiembre?', 4, 'medio'),
-            ('¿Qué bebida es popular durante las fiestas navideñas?', 4, 'medio'),
-            ('¿Qué día se celebra el Día del Agricultor?', 4, 'medio')
+            ('¿Qué significa “Pura Vida”?', 4, 'alta'),
+            ('¿Qué festividad se celebra el 15 de septiembre?', 4, 'alta'),
+            ('¿Qué bebida es popular durante las fiestas navideñas?', 4, 'alta'),
+            ('¿Qué día se celebra el Día del Agricultor?', 4, 'alta')
         ]
         c.executemany('INSERT INTO preguntas (pregunta, id_categoria, nivel_dificultad) VALUES (?, ?, ?)', preguntas)
 
