@@ -2,6 +2,7 @@ import pygame
 import sys
 from Datos.seleccion import Seleccion
 from Logica.registrar_jugador import RegistrarJugador
+from Logica.juego_iniciado import JuegoIniciado  # Asegúrate de que la ruta de importación sea correcta
 
 class SeleccionarJugador:
     def __init__(self, screen, screen_width, screen_height):
@@ -12,6 +13,7 @@ class SeleccionarJugador:
         self.seleccion = Seleccion()
         self.jugadores = self.seleccion.obtener_jugadores()
         self.buttons = self.create_buttons()
+        self.dificultad = "media"  # Ejemplo de dificultad; esto puede cambiarse según tu lógica
 
     def create_buttons(self):
         return {
@@ -40,35 +42,34 @@ class SeleccionarJugador:
                     for jugador in self.jugadores:
                         jugador_rect = pygame.Rect(200, 100 + self.jugadores.index(jugador) * 50, 400, 40)
                         if jugador_rect.collidepoint(event.pos):
-                            return jugador[0]  # Retorna el id del jugador seleccionado
+                            self.iniciar_juego(jugador)  # Inicia el juego con el jugador seleccionado
 
-            self.screen.fill((0, 0, 0))
-            for jugador in self.jugadores:
-                jugador_surface = self.font.render(f"{jugador[1]} {jugador[2]}", True, (255, 255, 255))
-                jugador_rect = pygame.Rect(200, 100 + self.jugadores.index(jugador) * 50, 400, 40)
-                self.screen.blit(jugador_surface, (jugador_rect.x, jugador_rect.y))
-                pygame.draw.rect(self.screen, (255, 255, 255), jugador_rect, 2)
-            for text, rect in self.buttons.items():
-                pygame.draw.rect(self.screen, (255, 255, 255), rect, 2)
-                btn_text = self.font.render(text, True, (255, 255, 255))
-                self.screen.blit(btn_text, (rect.x + 10, rect.y + 10))
+            self.renderizar_jugadores()
             pygame.display.flip()
+
+    def iniciar_juego(self, jugador):
+        print(f"Jugador seleccionado: {jugador[1]} {jugador[2]}")
+        juego = JuegoIniciado(jugador, self.dificultad, self.screen)  # Pasar la pantalla
+        juego.iniciar_juego()  # Inicia el juego
+
+    def renderizar_jugadores(self):
+        self.screen.fill((0, 0, 0))
+        for jugador in self.jugadores:
+            jugador_surface = self.font.render(f"{jugador[1]} {jugador[2]}", True, (255, 255, 255))
+            jugador_rect = pygame.Rect(200, 100 + self.jugadores.index(jugador) * 50, 400, 40)
+            self.screen.blit(jugador_surface, (jugador_rect.x, jugador_rect.y))
+            pygame.draw.rect(self.screen, (255, 255, 255), jugador_rect, 2)
+
+        for text, rect in self.buttons.items():
+            pygame.draw.rect(self.screen, (255, 255, 255), rect, 2)
+            btn_text = self.font.render(text, True, (255, 255, 255))
+            self.screen.blit(btn_text, (rect.x + 10, rect.y + 10))
 
     def volver_a_inicio(self):
         print("Volver al menú principal")
-        from SistemaRetoTico.menu import Menu  # Import Menu here to avoid circular import issues
+        from SistemaRetoTico.menu import Menu
         menu = Menu(self.screen, self.screen_width, self.screen_height)
         menu.show()
-
-        running = True
-        while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    menu.handle_click(event.pos)
-                    
-        pygame.quit()
 
     def registrar_nuevo_jugador(self):
         registrar_jugador = RegistrarJugador(self.screen, self.screen_width, self.screen_height)
