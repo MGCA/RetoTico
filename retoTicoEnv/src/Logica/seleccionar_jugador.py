@@ -6,6 +6,7 @@ from Logica.juego_iniciado import JuegoIniciado  # Asegúrate de que la ruta de 
 
 class SeleccionarJugador:
     def __init__(self, screen, screen_width, screen_height):
+        pygame.display.set_caption("Seleccion de Jugador")
         self.screen = screen
         self.screen_width = screen_width
         self.screen_height = screen_height
@@ -14,6 +15,7 @@ class SeleccionarJugador:
         self.jugadores = self.seleccion.obtener_jugadores()
         self.buttons = self.create_buttons()
         self.dificultad = "media"  # Ejemplo de dificultad; esto puede cambiarse según tu lógica
+        self.categoria = 2
 
     def create_buttons(self):
         return {
@@ -49,7 +51,7 @@ class SeleccionarJugador:
 
     def iniciar_juego(self, jugador):
         print(f"Jugador seleccionado: {jugador[1]} {jugador[2]}")
-        juego = JuegoIniciado(jugador, self.dificultad, self.screen)  # Pasar la pantalla
+        juego = JuegoIniciado(jugador, self.dificultad, self.categoria, self.screen, self.screen_width, self.screen_height)  # Pasar las dimensiones
         juego.iniciar_juego()  # Inicia el juego
 
     def renderizar_jugadores(self):
@@ -66,10 +68,21 @@ class SeleccionarJugador:
             self.screen.blit(btn_text, (rect.x + 10, rect.y + 10))
 
     def volver_a_inicio(self):
+        # Implementa la lógica para regresar al menú principal aquí
         print("Volver al menú principal")
-        from SistemaRetoTico.menu import Menu
+        from SistemaRetoTico.menu import Menu  # Import Menu here to avoid circular import issues
         menu = Menu(self.screen, self.screen_width, self.screen_height)
         menu.show()
+        
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    menu.handle_click(event.pos)
+                    
+        pygame.quit()
 
     def registrar_nuevo_jugador(self):
         registrar_jugador = RegistrarJugador(self.screen, self.screen_width, self.screen_height)

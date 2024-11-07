@@ -26,9 +26,15 @@ def play_background_music(music_file):
 
 def mostrar_presentacion(screen):
     """Muestra una pantalla de presentación con un logo y una barra de carga."""
-    logo = pygame.image.load(get_absolute_path('img/logo.png'))  # Cargar tu logo aquí
-    logo = pygame.transform.scale(logo, (screen.get_width(), screen.get_height()))  # Ajustar el tamaño del logo a la ventana
-    loading_rect = pygame.Rect(100, screen.get_height() - 100, screen.get_width() - 200, 30)
+    # Obtener dimensiones actuales de la pantalla
+    screen_width, screen_height = screen.get_size()
+    
+    # Cargar el logo y ajustarlo al tamaño de la pantalla
+    logo = pygame.image.load(get_absolute_path('img/logo.png'))
+    logo = pygame.transform.scale(logo, (screen_width, screen_height))  # Ajustar el tamaño del logo a la ventana
+    
+    # Definir la posición y tamaño de la barra de carga
+    loading_rect = pygame.Rect(100, screen_height - 100, screen_width - 200, 30)
 
     # Simulación de carga (puedes reemplazarlo con lógica de carga real)
     for i in range(101):  # 0 a 100
@@ -40,7 +46,7 @@ def mostrar_presentacion(screen):
         pygame.draw.rect(screen, (0, 255, 0), (loading_rect.x, loading_rect.y, loading_rect.width * i / 100, loading_rect.height))  # Progreso de la barra
 
         pygame.display.flip()  # Actualizar la pantalla
-        pygame.time.delay(50)  # Esperar un poco para simular el tiempo de carga
+        pygame.time.delay(10)  # Esperar un poco para simular el tiempo de carga
 
 
 def main():
@@ -49,10 +55,12 @@ def main():
     Db_insertarDatos.insertar_datos()
 
     pygame.init()
-    screen_width = 800
-    screen_height = 600
-    screen = pygame.display.set_mode((screen_width, screen_height))
-    pygame.display.set_caption("Menú Principal")
+
+    # Obtener las dimensiones de la pantalla y establecer un tamaño de ventana dinámico
+    screen_width = 1024  # Puedes cambiarlo por cualquier tamaño que consideres adecuado
+    screen_height = 768  # Igual aquí
+    screen = pygame.display.set_mode((screen_width, screen_height))  # Establecer tamaño de ventana sin fullscreen
+    pygame.display.set_caption("RetoTico")
 
     # Reproducir música de fondo
     play_background_music('music/nature-reserve.wav')
@@ -61,7 +69,7 @@ def main():
     mostrar_presentacion(screen)
 
     # Iniciar el menú
-    menu = Menu(screen, screen_width, screen_height)
+    menu = Menu(screen, screen_width, screen_height)  # Pasamos las dimensiones
     running = True
     while running:
         for event in pygame.event.get():

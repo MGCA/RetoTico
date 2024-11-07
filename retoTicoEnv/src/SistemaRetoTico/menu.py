@@ -5,9 +5,11 @@ from Logica.registrar_jugador import RegistrarJugador
 from Logica.seleccionar_jugador import SeleccionarJugador
 from Datos.seleccion import Seleccion
 from SistemaRetoTico.iniciar import Iniciar
+from SistemaRetoTico.politicasDePrivacidad import PoliticasDePrivacidad  # Asegúrate de importar tu clase
 
 class Menu:
     def __init__(self, screen, screen_width, screen_height):
+        pygame.display.set_caption("Menu Principal")
         self.screen = screen
         self.screen_width = screen_width
         self.screen_height = screen_height
@@ -15,6 +17,7 @@ class Menu:
         self.options = ["Iniciar", "Jugadores", "Acerca de", "Ajustes", "Políticas de Privacidad", "Salir"]
         self.colors = {"background": (0, 0, 0), "text": (255, 255, 255)}
         self.icons = self.load_icons()
+        self.estudiantes = [("Michael Chavarria Alvarado", "5-0415-0045"), ("Estela Artavia Aguilar", "0-0000-0000")]  # Agrega tus estudiantes aquí
 
     def get_icon_path(self, icon_name):
         """Devuelve la ruta completa del archivo de ícono."""
@@ -60,16 +63,7 @@ class Menu:
                     sys.exit()
                 elif option == "Iniciar":
                     print("Iniciar seleccionado")
-                    iniciar = Iniciar(self.screen, self.screen_width, self.screen_height)
-                    iniciar.show()
-                    running = True
-                    while running:
-                        for event in pygame.event.get():
-                            if event.type == pygame.QUIT:
-                                running = False
-                            elif event.type == pygame.MOUSEBUTTONDOWN:
-                                iniciar.handle_click(event.pos)
-                    pygame.quit()
+                    self.iniciar_juego()  # Llama al método separado
                 elif option == "Jugadores":
                     print("Jugadores seleccionado")
                 elif option == "Acerca de":
@@ -78,5 +72,37 @@ class Menu:
                     print("Ajustes seleccionado")
                 elif option == "Políticas de Privacidad":
                     print("Políticas de Privacidad seleccionado")
+                    self.mostrar_politicas_privacidad()
                 else:
                     print(f"{option} seleccionado")
+
+    def iniciar_juego(self):
+        """Inicia el juego creando una instancia de Iniciar y manejando su bucle de eventos."""
+        iniciar = Iniciar(self.screen, self.screen_width, self.screen_height)
+        iniciar.show()
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    iniciar.handle_click(event.pos)
+        pygame.quit()
+
+    def mostrar_politicas_privacidad(self):
+        # Aquí se corrige el número de argumentos pasados al constructor
+        politicas = PoliticasDePrivacidad(self.screen, "RetoTico", self.estudiantes)
+        politicas.mostrar_politicas()
+
+        # Pausar para ver las políticas
+        waiting = True
+        while waiting:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    waiting = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:  # Presiona Enter para continuar
+                        waiting = False
+
+        # Regresar al menú después de ver las políticas
+        self.show()

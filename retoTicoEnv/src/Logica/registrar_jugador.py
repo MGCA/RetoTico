@@ -4,6 +4,7 @@ from Datos.insercion import Insercion
 
 class RegistrarJugador:
     def __init__(self, screen, screen_width, screen_height):
+        pygame.display.set_caption("Registrar Jugador")
         self.screen = screen
         self.screen_width = screen_width
         self.screen_height = screen_height

@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\gabri\Documents\UNA\II Ciclo\Tópicos avanzados de Bases de Datos\CODIGO\RetoTico\retoTicoEnv"
+VIRTUAL_ENV="C:\Users\gabri\Documents\UNA\II Ciclo\Tópicos avanzados de Bases de Datos\PYTHON\CODIGO\RetoTico\retoTicoEnv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

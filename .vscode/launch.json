@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Depurador de Python: Archivo actual",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "python": "C:/Users/gabri/Documents/UNA/II Ciclo/Tópicos avanzados de Bases de Datos/PYTHON/CODIGO/RetoTico/retoTicoEnv/Scripts/python.exe",
+            "stopOnEntry": false,
+            "justMyCode": false
+        }
+    ]
+}
