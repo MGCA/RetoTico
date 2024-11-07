@@ -26,28 +26,28 @@ class JuegoIniciado:
         contenedorPreguntas = Seleccion()
         preguntas = []
         
-        for _ in range(5):  # Puedes cambiar el número de preguntas
+        # Cambié el número de iteraciones a 4, ya que quieres ver 4 preguntas
+        for _ in range(4):  # Ajusté el número de preguntas
             pregunta_info = contenedorPreguntas.obtener_preguntas(self.dificultad, self.categoria)
             
-            # Verifica si es una lista y toma el primer elemento
+            # Verifica si es una lista y toma el primer elemento si hay más de una pregunta
             if isinstance(pregunta_info, list) and pregunta_info:
-                pregunta_info = pregunta_info[0]
-
-            if pregunta_info:
-                try:
-                    correct_index = next(i for i, r in enumerate(pregunta_info["respuestas"]) if r["es_correcta"])
-                except StopIteration:
-                    print(f"No se encontró una respuesta correcta para la pregunta con id {pregunta_info['id_pregunta']}")
-                    correct_index = None  # O cualquier otro valor predeterminado si no hay una respuesta correcta
-                
-                preguntas.append({
-                    "idPregunta": pregunta_info["id_pregunta"],
-                    "question": pregunta_info["pregunta"],
-                    "options": [r["respuesta"] for r in pregunta_info["respuestas"]],
-                    "correct": correct_index
-                })
-        
+                for p in pregunta_info:  # Itera sobre todas las preguntas de la lista
+                    try:
+                        correct_index = next(i for i, r in enumerate(p["respuestas"]) if r["es_correcta"])
+                    except StopIteration:
+                        print(f"No se encontró una respuesta correcta para la pregunta con id {p['id_pregunta']}")
+                        correct_index = None
+                    
+                    preguntas.append({
+                        "idPregunta": p["id_pregunta"],
+                        "question": p["pregunta"],
+                        "options": [r["respuesta"] for r in p["respuestas"]],
+                        "correct": correct_index
+                    })
+                    
         return preguntas
+
 
     def iniciar_juego(self):
         self.temporizador(60)
@@ -150,8 +150,15 @@ class JuegoIniciado:
                 self.puntaje += 10  # Ajustar la puntuación según se desee
             else:
                 self.desaciertos += 1
+            
+            # Avanzar a la siguiente pregunta
             self.current_question += 1
-            self.selected_answer = None  # Reiniciar la selección de respuesta para la próxima pregunta
+
+            # Si hay más preguntas, se reinicia la selección de respuesta para la próxima pregunta
+            if self.current_question < len(self.questions):
+                self.selected_answer = None  # Reiniciar la selección de respuesta
+            else:
+                self.mostrar_mensaje("Has completado el juego.")
 
 
     def mostrar_informacion_jugador(self):
