@@ -5,6 +5,7 @@ from Logica.seleccionar_jugador import SeleccionarJugador
 
 class Iniciar:
     def __init__(self, screen, screen_width, screen_height):
+        pygame.display.set_caption("Iniciar: Seleccion / Registro")
         self.screen = screen
         self.screen_width = screen_width
         self.screen_height = screen_height
@@ -49,6 +50,7 @@ class Iniciar:
         print("Datos del usuario guardados:", user_data)
 
     def regresar_menu_principal(self):
+        # Implementa la lógica para regresar al menú principal aquí
         print("Volver al menú principal")
         from SistemaRetoTico.menu import Menu  # Import Menu here to avoid circular import issues
         menu = Menu(self.screen, self.screen_width, self.screen_height)
@@ -63,3 +65,8 @@ class Iniciar:
                     menu.handle_click(event.pos)
                     
         pygame.quit()
+
+    def update_screen(self):
+        """Refresca la pantalla"""
+        self.show()  # Usa el método show() para redibujar la pantalla completa
+

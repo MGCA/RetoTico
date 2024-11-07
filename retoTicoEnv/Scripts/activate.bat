@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\Users\gabri\Documents\UNA\II Ciclo\Tópicos avanzados de Bases de Datos\CODIGO\RetoTico\retoTicoEnv
+set VIRTUAL_ENV=C:\Users\gabri\Documents\UNA\II Ciclo\Tópicos avanzados de Bases de Datos\PYTHON\CODIGO\RetoTico\retoTicoEnv
 
 if not defined PROMPT set PROMPT=$P$G
 
