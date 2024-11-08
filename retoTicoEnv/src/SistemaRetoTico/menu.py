@@ -5,7 +5,10 @@ from Logica.registrar_jugador import RegistrarJugador
 from Logica.seleccionar_jugador import SeleccionarJugador
 from Datos.seleccion import Seleccion
 from SistemaRetoTico.iniciar import Iniciar
-from SistemaRetoTico.politicasDePrivacidad import PoliticasDePrivacidad  # Asegúrate de importar tu clase
+from SistemaRetoTico.politicasDePrivacidad import PoliticasDePrivacidad
+from configuracion.db_setup import Db_setup
+from configuracion.db_insertarDatos import Db_insertarDatos
+from Logica.mostrar_jugadores import MostrarJugadores  # Asegúrate de que la ruta sea correcta
 
 class Menu:
     def __init__(self, screen, screen_width, screen_height):
@@ -17,18 +20,21 @@ class Menu:
         self.options = ["Iniciar", "Jugadores", "Acerca de", "Ajustes", "Políticas de Privacidad", "Salir"]
         self.colors = {"background": (0, 0, 0), "text": (255, 255, 255)}
         self.icons = self.load_icons()
-        self.estudiantes = [("Michael Chavarria Alvarado", "5-0415-0045"), ("Estela Artavia Aguilar", "0-0000-0000")]  # Agrega tus estudiantes aquí
+        self.estudiantes = [("Michael Chavarria Alvarado", "5-0415-0045"), ("Estela Artavia Aguilar", "0-0000-0000")]
+
+        Db_setup.create_tables()
+        Db_insertarDatos.insertar_datos()
+
+        self.play_background_music('music/nature-reserve.wav')
 
     def get_icon_path(self, icon_name):
-        """Devuelve la ruta completa del archivo de ícono."""
         base_path = os.path.dirname(os.path.abspath(__file__))
         return os.path.join(base_path, '..', 'assets', 'icons', icon_name)
 
     def load_icons(self):
-        """Carga los íconos necesarios para el menú."""
         icon_files = ["iniciar.png", "jugadores.png", "acerca_de.png", "ajustes.png", "politicas_privacidad.png", "salir.png"]
         icons = {}
-        size = (40, 40)  # Ajusta el tamaño de los íconos según sea necesario
+        size = (40, 40)
         for option, icon_name in zip(self.options, icon_files):
             icon_path = self.get_icon_path(icon_name)
             if os.path.exists(icon_path):
@@ -38,6 +44,32 @@ class Menu:
             else:
                 print(f"Ícono no encontrado: {icon_path}")
         return icons
+
+    def play_background_music(self, music_file):
+        music_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../assets', music_file)
+        if os.path.exists(music_path):
+            try:
+                pygame.mixer.music.load(music_path)
+                pygame.mixer.music.play(-1)
+                print(f"Reproduciendo música: {music_file}")
+            except pygame.error as e:
+                print(f"Error al cargar o reproducir la música: {e}")
+        else:
+            print(f"Archivo de música no encontrado: {music_path}")
+
+    def mostrar_presentacion(self):
+        screen_width, screen_height = self.screen.get_size()
+        logo = pygame.image.load(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../assets', 'img', 'logo.png'))
+        logo = pygame.transform.scale(logo, (screen_width, screen_height))
+        loading_rect = pygame.Rect(100, screen_height - 100, screen_width - 200, 30)
+
+        for i in range(101):
+            self.screen.fill(self.colors["background"])
+            self.screen.blit(logo, (0, 0))
+            pygame.draw.rect(self.screen, (200, 200, 200), loading_rect)
+            pygame.draw.rect(self.screen, (0, 255, 0), (loading_rect.x, loading_rect.y, loading_rect.width * i / 100, loading_rect.height))
+            pygame.display.flip()
+            pygame.time.delay(10)
 
     def show(self):
         self.screen.fill(self.colors["background"])
@@ -62,22 +94,17 @@ class Menu:
                     pygame.quit()
                     sys.exit()
                 elif option == "Iniciar":
-                    print("Iniciar seleccionado")
-                    self.iniciar_juego()  # Llama al método separado
+                    self.iniciar_juego()
                 elif option == "Jugadores":
-                    print("Jugadores seleccionado")
+                    self.mostrar_jugadores()
                 elif option == "Acerca de":
-                    print("Acerca de seleccionado")
+                    self.mostrar_acerca_de()
                 elif option == "Ajustes":
-                    print("Ajustes seleccionado")
+                    self.mostrar_ajustes()
                 elif option == "Políticas de Privacidad":
-                    print("Políticas de Privacidad seleccionado")
                     self.mostrar_politicas_privacidad()
-                else:
-                    print(f"{option} seleccionado")
 
     def iniciar_juego(self):
-        """Inicia el juego creando una instancia de Iniciar y manejando su bucle de eventos."""
         iniciar = Iniciar(self.screen, self.screen_width, self.screen_height)
         iniciar.show()
         running = True
@@ -87,22 +114,38 @@ class Menu:
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     iniciar.handle_click(event.pos)
-        pygame.quit()
+            if not running:
+                return
 
     def mostrar_politicas_privacidad(self):
-        # Aquí se corrige el número de argumentos pasados al constructor
         politicas = PoliticasDePrivacidad(self.screen, "RetoTico", self.estudiantes)
         politicas.mostrar_politicas()
-
-        # Pausar para ver las políticas
         waiting = True
         while waiting:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     waiting = False
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN:  # Presiona Enter para continuar
+                    if event.key == pygame.K_RETURN:
                         waiting = False
-
-        # Regresar al menú después de ver las políticas
         self.show()
+
+    def mostrar_jugadores(self):
+        # Crear una instancia de MostrarJugadores
+        mostrar_jugadores = MostrarJugadores(self.screen, self.screen_width, self.screen_height)
+        
+        # Bucle principal para gestionar eventos y actualizar pantalla
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    mostrar_jugadores.handle_click(event.pos)  # Pasar la posición del clic
+            mostrar_jugadores.show()  # Dibujar el estado actual
+
+    def mostrar_acerca_de(self):
+        print("Acerca de: Esta es la aplicación RetoTico...")
+
+    def mostrar_ajustes(self):
+        print("Mostrando ajustes...")
