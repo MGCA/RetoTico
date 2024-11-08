@@ -15,12 +15,20 @@ class Seleccion:
         return count > 0
 
     def obtener_jugadores(self):
-        conn = sqlite3.connect(self.db_name)
-        c = conn.cursor()
-        c.execute('SELECT id_usuario, nombre, apellido FROM usuarios')
-        jugadores = c.fetchall()
-        conn.close()
-        return jugadores
+        try:
+            # Usamos `with` para asegurar que la conexión y cursor se cierren automáticamente
+            with sqlite3.connect(self.db_name) as conn:
+                c = conn.cursor()
+                c.execute('SELECT id_usuario, nombre, apellido FROM usuarios')
+                jugadores = c.fetchall()
+
+            # Si no hay jugadores, se devolverá una lista vacía
+            return jugadores if jugadores else []
+
+        except sqlite3.Error as e:
+            # Manejo de errores, por ejemplo si la base de datos no está accesible
+            print(f"Error al obtener jugadores: {e}")
+            return []  # Devuelve una lista vacía en caso de error
     
 
     def obtener_preguntas(self, dificultad, categoria):
@@ -105,5 +113,30 @@ class Seleccion:
         finally:
             # Asegurarse de cerrar la conexión en cualquier caso
             conn.close()
+    
+    def obtener_historial_juegos(self, id_usuario):
+        """
+        Obtiene el historial de juegos de un jugador específico.
+        
+        :param id_usuario: ID del usuario para el cual se desea obtener el historial de juegos.
+        :return: Lista de tuplas con el historial de juegos, o una lista vacía si no hay registros.
+        """
+        try:
+            with sqlite3.connect(self.db_name) as conn:
+                c = conn.cursor()
+                # Consulta para obtener el historial de juegos del usuario especificado
+                c.execute('''
+                    SELECT fecha_juego, puntos_obtenidos 
+                    FROM historial_juegos 
+                    WHERE id_usuario = ?
+                    ORDER BY fecha_juego DESC
+                ''', (id_usuario,))
+                
+                historial = c.fetchall()
+                return historial if historial else []  # Devuelve la lista de juegos o una lista vacía
+
+        except sqlite3.Error as e:
+            print(f"Error al obtener el historial de juegos para el usuario {id_usuario}: {e}")
+            return []  # Devuelve una lista vacía en caso de error
 
 
