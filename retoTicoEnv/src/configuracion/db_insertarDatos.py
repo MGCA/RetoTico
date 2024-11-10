@@ -1,11 +1,16 @@
-# db_insertar_datos.py
-
 import sqlite3
+import sys
+import os
+
 
 class Db_insertarDatos:
     @staticmethod
     def insertar_datos():
-        conn = sqlite3.connect('retotico.db')
+        # Definir la ruta de la base de datos en el directorio de usuario
+        user_dir = os.path.expanduser("~")
+        db_path = os.path.join(user_dir, 'retotico.db')  # Cambia "mi_juego.db" por el nombre de tu BD
+        
+        conn = sqlite3.connect(db_path)
         c = conn.cursor()
 
         # Verificamos si ya existen categorías para no insertarlas nuevamente

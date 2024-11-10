@@ -1,13 +1,17 @@
 import sqlite3
+import sys
+import os
 import random
 
 
 class Seleccion:
     def __init__(self, db_name='retotico.db'):
-        self.db_name = db_name
+        # Definir la ruta completa de la base de datos en el directorio del usuario
+        user_dir = os.path.expanduser("~")
+        self.db_path = os.path.join(user_dir, db_name)
 
     def hay_jugadores(self):
-        conn = sqlite3.connect(self.db_name)
+        conn = sqlite3.connect(self.db_path)
         c = conn.cursor()
         c.execute('SELECT COUNT(*) FROM usuarios')
         count = c.fetchone()[0]
@@ -17,7 +21,7 @@ class Seleccion:
     def obtener_jugadores(self):
         try:
             # Usamos `with` para asegurar que la conexión y cursor se cierren automáticamente
-            with sqlite3.connect(self.db_name) as conn:
+            with sqlite3.connect(self.db_path) as conn:
                 c = conn.cursor()
                 c.execute('SELECT id_usuario, nombre, apellido FROM usuarios')
                 jugadores = c.fetchall()
@@ -33,7 +37,7 @@ class Seleccion:
 
     def obtener_preguntas(self, dificultad, categorias):
         """Obtiene preguntas con cuatro respuestas (incluyendo siempre la correcta) en función de las categorías y dificultad, con la imagen si existe."""
-        conn = sqlite3.connect(self.db_name)
+        conn = sqlite3.connect(self.db_path)
         c = conn.cursor()
 
         try:
@@ -125,7 +129,7 @@ class Seleccion:
         :return: Lista de tuplas con el historial de juegos, o una lista vacía si no hay registros.
         """
         try:
-            with sqlite3.connect(self.db_name) as conn:
+            with sqlite3.connect(self.db_path) as conn:
                 c = conn.cursor()
                 # Consulta para obtener el historial de juegos del usuario especificado
                 c.execute('''
@@ -149,7 +153,7 @@ class Seleccion:
         :return: Lista de niveles de dificultad únicos o una lista vacía si no hay registros o ocurre un error.
         """
         try:
-            with sqlite3.connect(self.db_name) as conn:
+            with sqlite3.connect(self.db_path) as conn:
                 c = conn.cursor()
                 # Consulta para obtener las dificultades únicas en la tabla de preguntas
                 c.execute('''
@@ -173,7 +177,7 @@ class Seleccion:
                  o una lista vacía si no hay registros o ocurre un error.
         """
         try:
-            with sqlite3.connect(self.db_name) as conn:
+            with sqlite3.connect(self.db_path) as conn:
                 c = conn.cursor()
                 # Consulta para obtener todas las categorías
                 c.execute('''SELECT id_categoria, nombre_categoria FROM categorias''')
