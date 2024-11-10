@@ -8,7 +8,7 @@ from SistemaRetoTico.iniciar import Iniciar
 from SistemaRetoTico.politicasDePrivacidad import PoliticasDePrivacidad
 from configuracion.db_setup import Db_setup
 from configuracion.db_insertarDatos import Db_insertarDatos
-from Logica.mostrar_jugadores import MostrarJugadores  # Asegúrate de que la ruta sea correcta
+from Logica.mostrar_jugadores import MostrarJugadores
 
 class Menu:
     def __init__(self, screen, screen_width, screen_height):
@@ -64,6 +64,11 @@ class Menu:
         loading_rect = pygame.Rect(100, screen_height - 100, screen_width - 200, 30)
 
         for i in range(101):
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+
             self.screen.fill(self.colors["background"])
             self.screen.blit(logo, (0, 0))
             pygame.draw.rect(self.screen, (200, 200, 200), loading_rect)
@@ -131,18 +136,15 @@ class Menu:
         self.show()
 
     def mostrar_jugadores(self):
-        # Crear una instancia de MostrarJugadores
         mostrar_jugadores = MostrarJugadores(self.screen, self.screen_width, self.screen_height)
-        
-        # Bucle principal para gestionar eventos y actualizar pantalla
         running = True
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    mostrar_jugadores.handle_click(event.pos)  # Pasar la posición del clic
-            mostrar_jugadores.show()  # Dibujar el estado actual
+                    mostrar_jugadores.handle_click(event.pos)
+            mostrar_jugadores.show()
 
     def mostrar_acerca_de(self):
         print("Acerca de: Esta es la aplicación RetoTico...")

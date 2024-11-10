@@ -31,8 +31,8 @@ class Seleccion:
             return []  # Devuelve una lista vacía en caso de error
     
 
-    def obtener_preguntas(self, dificultad, categoria):
-        """Obtiene preguntas con cuatro respuestas (incluyendo siempre la correcta) en función de la categoría y dificultad, con la imagen si existe."""
+    def obtener_preguntas(self, dificultad, categorias):
+        """Obtiene preguntas con cuatro respuestas (incluyendo siempre la correcta) en función de las categorías y dificultad, con la imagen si existe."""
         conn = sqlite3.connect(self.db_name)
         c = conn.cursor()
 
@@ -49,9 +49,9 @@ class Seleccion:
             if dificultad:
                 query += " AND p.nivel_dificultad = ?"
                 params.append(dificultad)
-            if categoria:
-                query += " AND p.id_categoria = ?"
-                params.append(categoria)
+            if categorias:
+                query += " AND p.id_categoria IN ({})".format(",".join("?" * len(categorias)))
+                params.extend(categorias)
 
             c.execute(query, params)
             datos = c.fetchall()
@@ -108,6 +108,9 @@ class Seleccion:
                     pregunta["respuestas"] = respuestas_seleccionadas
                     preguntas_final.append(pregunta)
 
+            # Mezclar el orden de las preguntas en preguntas_final
+            random.shuffle(preguntas_final)
+
             return preguntas_final
 
         finally:
@@ -138,5 +141,50 @@ class Seleccion:
         except sqlite3.Error as e:
             print(f"Error al obtener el historial de juegos para el usuario {id_usuario}: {e}")
             return []  # Devuelve una lista vacía en caso de error
+    
+    def obtener_dificultades(self):
+        """
+        Obtiene los distintos niveles de dificultad de las preguntas en la base de datos.
+        
+        :return: Lista de niveles de dificultad únicos o una lista vacía si no hay registros o ocurre un error.
+        """
+        try:
+            with sqlite3.connect(self.db_name) as conn:
+                c = conn.cursor()
+                # Consulta para obtener las dificultades únicas en la tabla de preguntas
+                c.execute('''
+                    SELECT DISTINCT nivel_dificultad 
+                    FROM preguntas
+                ''')
+                
+                dificultades = [row[0] for row in c.fetchall()]
+                return dificultades if dificultades else []  # Devuelve la lista de dificultades o una lista vacía
+
+        except sqlite3.Error as e:
+            print(f"Error al obtener dificultades: {e}")
+            return []  # Devuelve una lista vacía en caso de error
+
+
+    def obtener_categorias(self):
+        """
+        Obtiene todas las categorías disponibles en la base de datos.
+        
+        :return: Lista de diccionarios con las claves 'id_categoria' y 'nombre_categoria'
+                 o una lista vacía si no hay registros o ocurre un error.
+        """
+        try:
+            with sqlite3.connect(self.db_name) as conn:
+                c = conn.cursor()
+                # Consulta para obtener todas las categorías
+                c.execute('''SELECT id_categoria, nombre_categoria FROM categorias''')
+                
+                # Crear lista de diccionarios
+                categorias = [{'id_categoria': row[0], 'nombre_categoria': row[1]} for row in c.fetchall()]
+                return categorias if categorias else []  # Devuelve la lista de diccionarios o una lista vacía
+
+        except sqlite3.Error as e:
+            print(f"Error al obtener categorías: {e}")
+            return []  # Devuelve una lista vacía en caso de error
+
 
 
