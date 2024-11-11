@@ -1,4 +1,5 @@
 import pygame  # Asegúrate de importar pygame
+import sys
 from Logica.estado_juego import EstadoJuego
 from Logica.gestor_preguntas import GestorPreguntas
 from Logica.renderizador_juego import RenderizadorJuego
@@ -370,6 +371,7 @@ class ControladorJuego:
         pygame.quit()
 
     def salir(self):
-        """Salir del juego"""
+        """Cierra el juego y sale de Pygame"""
+        self.estado.juego_salir = True  # Indica que el juego ha terminado
         pygame.quit()
-        exit()
+        sys.exit()
