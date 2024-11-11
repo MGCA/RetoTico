@@ -17,6 +17,7 @@ class Menu:
         self.screen = screen
         self.screen_width = screen_width
         self.screen_height = screen_height
+        self.title_font = pygame.font.SysFont('Arial', 54)  # Cambiar a fuente predeterminada
         self.font = pygame.font.Font(None, 36)
         self.options = ["Iniciar", "Jugadores", "Acerca de", "Ajustes", "Políticas de Privacidad", "Salir"]
         self.colors = {"background": (0, 0, 0), "text": (255, 255, 255)}
@@ -85,22 +86,41 @@ class Menu:
 
     def show(self):
         self.screen.fill(self.colors["background"])
+
+        # Cargar y mostrar el logo en la parte superior
+        icon = pygame.image.load(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../assets', 'img', 'icon.png'))
+        icon = pygame.transform.scale(icon, (100, 100))  # Ajusta el tamaño del logo
+        logo_rect = icon.get_rect(center=(self.screen_width // 2, 50))  # Centrado en la parte superior
+        self.screen.blit(icon, logo_rect)
+
+        # Título "RetoTico" debajo del logo
+        try:
+            titulo_texto = self.title_font.render("RetoTico", True, self.colors["text"])
+            titulo_rect = titulo_texto.get_rect(center=(self.screen_width // 2, logo_rect.bottom + 10))
+            self.screen.blit(titulo_texto, titulo_rect)
+        except Exception as e:
+            print(f"Error al renderizar el texto: {e}")
+
+        # Espacio entre el título y las opciones del menú (ajusta este valor como necesites)
+        espacio_entre_titulo_y_opciones = 100
+
+        # Mostrar las opciones del menú, ajustando el espacio con la variable
         for i, opcion in enumerate(self.options):
             icon = self.icons.get(opcion)
             if icon:
-                icon_rect = icon.get_rect(center=(self.screen_width // 2, 70 + i * 80))
+                icon_rect = icon.get_rect(center=(self.screen_width // 2, logo_rect.bottom + espacio_entre_titulo_y_opciones + i * 80))
                 self.screen.blit(icon, icon_rect.topleft)
 
             texto = self.font.render(opcion, True, self.colors["text"])
-            text_rect = texto.get_rect(center=(self.screen_width // 2, 100 + i * 80))
+            text_rect = texto.get_rect(center=(self.screen_width // 2, logo_rect.bottom + espacio_entre_titulo_y_opciones + 30 + i * 80))
             self.screen.blit(texto, text_rect.topleft)
 
         pygame.display.flip()
 
     def handle_click(self, pos):
         for i, option in enumerate(self.options):
-            y_start = 70 + i * 80 - 20
-            y_end = 130 + i * 80
+            y_start = 170 + i * 80 - 20
+            y_end = 230 + i * 80
             if y_start <= pos[1] <= y_end:
                 if option == "Salir":
                     pygame.quit()
