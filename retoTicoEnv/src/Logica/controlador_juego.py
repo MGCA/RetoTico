@@ -5,6 +5,7 @@ from Logica.renderizador_juego import RenderizadorJuego
 from Datos.insertar_juego import InsertarJuegos
 from datetime import datetime
 
+
 class ControladorJuego:
     def __init__(self, jugador, dificultad, categoria, pantalla, ancho_pantalla, alto_pantalla):
         self.jugador = jugador
@@ -22,7 +23,6 @@ class ControladorJuego:
         self.botones_pausa = [
             {"texto": "Reanudar", "accion": self.reanudar, "rect": pygame.Rect(0, 0, 200, 50)},
             {"texto": "Cambiar Jugador", "accion": self.cambiar_jugador, "rect": pygame.Rect(0, 0, 200, 50)},
-            {"texto": "Cambiar Dificultad", "accion": self.cambiar_dificultad, "rect": pygame.Rect(0, 0, 200, 50)},
             {"texto": "Volver al Menú", "accion": self.volver_menu, "rect": pygame.Rect(0, 0, 200, 50)},
             {"texto": "Salir", "accion": self.salir, "rect": pygame.Rect(0, 0, 200, 50)},
         ]
@@ -193,18 +193,39 @@ class ControladorJuego:
 
     def cambiar_jugador(self):
         """Cambiar jugador"""
-        # Lógica para cambiar de jugador
-        pass
+        from Logica.seleccionar_jugador import SeleccionarJugador
+        seleccionar_jugador = SeleccionarJugador(self.pantalla, self.ancho_pantalla, self.alto_pantalla)
+        
+        jugadores_registrados = seleccionar_jugador.obtener_lista_de_jugadores()
 
-    def cambiar_dificultad(self):
-        """Cambiar dificultad"""
-        # Lógica para cambiar la dificultad
-        pass
+        if jugadores_registrados:  # Si hay jugadores registrados
+            
+            jugador_seleccionado = seleccionar_jugador.seleccion_jugador()
+
+            if jugador_seleccionado != "No hay jugadores":
+                print(f"Jugador existente seleccionado: {jugador_seleccionado}")
+            else:
+                print("No se ha seleccionado un jugador válido.")
+        else:
+            # Si no hay jugadores registrados, mostramos un mensaje
+            print("No hay jugadores registrados. Por favor, registre un jugador primero.")
 
     def volver_menu(self):
         """Volver al menú principal"""
-        # Lógica para volver al menú principal
-        pass
+        print("Volver al menú principal")
+        from SistemaRetoTico.menu import Menu  # Import Menu here to avoid circular import issues
+        menu = Menu(self.pantalla, self.ancho_pantalla, self.alto_pantalla)
+        menu.show()
+
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    menu.handle_click(event.pos)
+
+        pygame.quit()
 
     def salir(self):
         """Salir del juego"""

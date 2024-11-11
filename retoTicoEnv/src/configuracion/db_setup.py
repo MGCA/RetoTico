@@ -2,6 +2,7 @@ import sqlite3
 import sys
 import os
 from configuracion.db_insertarDatos import Db_insertarDatos
+from configuracion.db_insertarPcd import Db_insertarPcd
 
 class Db_setup:
     @staticmethod
@@ -93,6 +94,39 @@ class Db_setup:
                     FOREIGN KEY (id_pregunta) REFERENCES preguntas(id_pregunta)
                 )
             ''')
+            
+            c.execute(''' 
+                CREATE TABLE IF NOT EXISTS provincias (
+                    CodigoProvincia INTEGER PRIMARY KEY,
+                    Provincia TEXT NOT NULL
+                )
+            ''')
+
+            c.execute(''' 
+                CREATE TABLE IF NOT EXISTS cantones (
+                    CodigoProvincia INTEGER,
+                    CodigoCanton INTEGER,
+                    Provincia TEXT,
+                    Canton TEXT NOT NULL,
+                    PRIMARY KEY (CodigoProvincia, CodigoCanton),
+                    FOREIGN KEY (CodigoProvincia) REFERENCES provincias(CodigoProvincia)
+                )
+            ''')
+
+            c.execute(''' 
+                CREATE TABLE IF NOT EXISTS distritos (
+                    CodigoProvincia INTEGER,
+                    CodigoCanton INTEGER,
+                    CodigoDistrito INTEGER,
+                    Provincia TEXT,
+                    Canton TEXT,
+                    Distrito TEXT NOT NULL,
+                    RegionINEC TEXT,
+                    PRIMARY KEY (CodigoProvincia, CodigoCanton, CodigoDistrito),
+                    FOREIGN KEY (CodigoProvincia) REFERENCES provincias(CodigoProvincia),
+                    FOREIGN KEY (CodigoProvincia, CodigoCanton) REFERENCES cantones(CodigoProvincia, CodigoCanton)
+                )
+            ''')
 
             conn.commit()
             
@@ -100,6 +134,7 @@ class Db_setup:
             if not db_exists:
                 print("Base de Datos creada")
                 Db_insertarDatos.insertar_datos()
+                Db_insertarPcd.insertar_datos()
                 print("Datos cargados")
 
             conn.close()

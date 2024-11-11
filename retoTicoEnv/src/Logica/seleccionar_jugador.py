@@ -15,7 +15,7 @@ class SeleccionarJugador:
         self.seleccion = Seleccion()
         self.jugadores = self.seleccion.obtener_jugadores()
         self.dificultades = self.seleccion.obtener_dificultades()
-        self.categorias = self.seleccion.obtener_categorias()
+        self.categorias = None
         self.buttons = self.create_buttons()
         self.jugador_seleccionado = None
         self.dificultad_seleccionada = None
@@ -157,13 +157,14 @@ class SeleccionarJugador:
                         if dificultad_rect.collidepoint(event.pos):
                             self.dificultad_seleccionada = dificultad
                             running = False
-                            self.seleccion_categorias()  # Avanza a la selección de categorías
+                            self.seleccion_categorias(self.dificultad_seleccionada)  # Avanza a la selección de categorías
             if running:
                 self.renderizar_dificultades()
                 pygame.display.flip()
 
-    def seleccion_categorias(self):
+    def seleccion_categorias(self,dificultad):
         """Permite al usuario seleccionar múltiples categorías mediante clics en la pantalla."""
+        self.categorias = self.seleccion.obtener_categorias(dificultad)
         if not self.categorias:
             print("No hay categorías disponibles.")
             self.volver_a_inicio()
