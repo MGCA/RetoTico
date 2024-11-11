@@ -109,10 +109,8 @@ class ControladorJuego:
         else:
             self.renderizador.mostrar_mensaje("Seleccione una opción antes de verificar.", color=(255, 0, 0))
 
-
-
     def mostrar_resultados_finales(self):
-        """Muestra los resultados finales con desplazamiento y adaptabilidad al tamaño de pantalla."""
+        """Muestra los resultados finales con desplazamiento solo para preguntas y respuestas, y agrega interacción con la rueda del mouse o clic en la barra de desplazamiento."""
         
         # Limpiar la pantalla y mostrar un fondo negro
         self.pantalla.fill((0, 0, 0))  # Fondo negro
@@ -131,28 +129,69 @@ class ControladorJuego:
         scroll_speed = 20  # Velocidad de desplazamiento
         y_offset = y_resultados + superficie_resultados.get_height() + 20  # Espacio debajo del título
         
-        # Limitar la altura visible (tamaño de la pantalla menos un margen)
-        max_height = self.alto_pantalla - 100  # 100px de margen para no tocar el borde inferior
+        # Limitar la altura visible para las preguntas/respuestas
+        max_height = self.alto_pantalla - 200  # 100px de margen superior y 100px inferior (para puntaje y mensaje continuar)
+        
+        # Crear un Rect para la zona desplazable de preguntas y respuestas
+        scroll_area = pygame.Rect(50, y_offset, self.ancho_pantalla - 100, max_height)
+        
+        # Dibujar la barra de desplazamiento
+        pygame.draw.rect(self.pantalla, (150, 150, 150), pygame.Rect(self.ancho_pantalla - 30, y_offset, 20, max_height))
+        pygame.draw.rect(self.pantalla, (100, 100, 100), pygame.Rect(self.ancho_pantalla - 30, y_offset + scroll_offset, 20, 50))  # Barra deslizante
+        
+        # Limitar el desplazamiento (no permitir que se desplace más allá del área de contenido)
+        def wrap_text(text, max_width):
+            """Divide el texto en líneas que se ajusten al ancho máximo permitido"""
+            words = text.split(' ')
+            lines = []
+            current_line = ""
+            
+            for word in words:
+                # Verificar si agregar la palabra excede el ancho máximo permitido
+                test_line = current_line + " " + word if current_line else word
+                width = self.renderizador.fuente.size(test_line)[0]  # Obtener el ancho de la línea de texto
+                
+                if width <= max_width:  # Permitir si el ancho no excede el límite
+                    current_line = test_line
+                else:
+                    if current_line:  # Si ya hay una línea, agregarla
+                        lines.append(current_line)
+                    current_line = word  # Comienza una nueva línea con la palabra actual
+            
+            if current_line:  # Agregar la última línea
+                lines.append(current_line)
+            
+            return lines
         
         # Iterar sobre las respuestas y mostrarlas
         for resultado in self.resultados_respuestas:
             # Mostrar la pregunta
             mensaje_pregunta = f"Pregunta: {resultado['pregunta']}"
-            superficie_pregunta = self.renderizador.fuente.render(mensaje_pregunta, True, (255, 255, 255))
-            x_pregunta = 50  # Márgenes desde la izquierda
-            self.pantalla.blit(superficie_pregunta, (x_pregunta, y_offset - scroll_offset))  # Mostrar la pregunta
-            y_offset += superficie_pregunta.get_height() + 10  # Espacio entre pregunta y respuesta
+            lineas_pregunta = wrap_text(mensaje_pregunta, self.ancho_pantalla - 100)  # Ajustar la pregunta
+            for linea in lineas_pregunta:
+                # La palabra "Pregunta" en verde, el resto en blanco
+                if linea.startswith("Pregunta"):
+                    superficie_pregunta = self.renderizador.fuente.render(linea, True, (0, 255, 0))  # Verde
+                else:
+                    superficie_pregunta = self.renderizador.fuente.render(linea, True, (255, 255, 255))  # Blanco
+
+                if scroll_area.collidepoint(50, y_offset - scroll_offset):
+                    self.pantalla.blit(superficie_pregunta, (50, y_offset - scroll_offset))  # Mostrar la pregunta
+                y_offset += superficie_pregunta.get_height() + 10  # Espacio entre pregunta y respuesta
             
             # Mostrar la respuesta debajo de la pregunta
             mensaje_respuesta = f"Respuesta: {resultado['respuesta']} - {'Correcta' if resultado['es_correcta'] else 'Incorrecta'}"
-            superficie_respuesta = self.renderizador.fuente.render(mensaje_respuesta, True, (255, 255, 255))
-            self.pantalla.blit(superficie_respuesta, (x_pregunta, y_offset - scroll_offset))  # Mostrar la respuesta
-            y_offset += superficie_respuesta.get_height() + 20  # Espacio entre respuestas
+            lineas_respuesta = wrap_text(mensaje_respuesta, self.ancho_pantalla - 100)  # Ajustar la respuesta
+            for linea in lineas_respuesta:
+                superficie_respuesta = self.renderizador.fuente.render(linea, True, (255, 255, 255))
+                if scroll_area.collidepoint(50, y_offset - scroll_offset):
+                    self.pantalla.blit(superficie_respuesta, (50, y_offset - scroll_offset))  # Mostrar la respuesta
+                y_offset += superficie_respuesta.get_height() + 20  # Espacio entre respuestas
             
             # Controlar el desplazamiento si el contenido es mayor al área visible
             if y_offset > max_height:
                 scroll_offset += scroll_speed  # Aumentar el desplazamiento
-
+        
         # Mostrar el puntaje total en la parte inferior derecha
         mensaje_puntaje = f"Puntaje Total: {self.estado.puntaje}"
         superficie_puntaje = self.renderizador.fuente.render(mensaje_puntaje, True, (0, 255, 0))  # Verde
@@ -174,39 +213,41 @@ class ControladorJuego:
         # Actualizar la pantalla para mostrar los cambios
         pygame.display.flip()
 
-        # Esperar que el jugador presione una tecla para terminar y salir
-        esperando = True
-        while esperando:
+        # Manejar eventos de desplazamiento y clics en la barra de desplazamiento
+        desplazando = False
+        while not self.estado.juego_terminado:
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
                     pygame.quit()
-                if evento.type == pygame.KEYDOWN:  # Si presionan una tecla
+                elif evento.type == pygame.KEYDOWN:  # Si presionan una tecla
                     self.estado.juego_terminado = True
-                    esperando = False
                     break  # Salir del ciclo para terminar
+                
+                elif evento.type == pygame.MOUSEBUTTONDOWN:
+                    # Detectar si se hizo clic en la barra de desplazamiento
+                    if pygame.Rect(self.ancho_pantalla - 30, y_offset, 20, max_height).collidepoint(evento.pos):
+                        desplazando = True
+                        mouse_y = evento.pos[1]
+                        offset_inicial = mouse_y - scroll_offset
+
+                elif evento.type == pygame.MOUSEBUTTONUP:
+                    desplazando = False  # Dejar de desplazar al soltar el clic
+                
+                elif evento.type == pygame.MOUSEMOTION and desplazando:
+                    # Mover la barra de desplazamiento con el mouse
+                    mouse_y = evento.pos[1]
+                    scroll_offset = mouse_y - offset_inicial
+                    # Limitar el desplazamiento dentro del área de la barra
+                    scroll_offset = max(0, min(scroll_offset, max_height - 50))
+                
+                elif evento.type == pygame.MOUSEWHEEL:
+                    # Desplazamiento con la rueda del mouse
+                    if evento.y > 0:  # Rueda hacia arriba
+                        scroll_offset = max(0, scroll_offset - scroll_speed)
+                    elif evento.y < 0:  # Rueda hacia abajo
+                        scroll_offset = min(max_height - 50, scroll_offset + scroll_speed)
 
 
-
-    def wrap_text(self, text, max_width):
-        """Divide el texto en líneas que se ajusten al ancho máximo permitido"""
-        words = text.split(' ')
-        lines = []
-        current_line = ""
-        for word in words:
-            # Verificar si agregar la palabra excede el ancho máximo permitido
-            test_line = current_line + " " + word if current_line else word
-            width = self.renderizador.fuente.size(test_line)[0]  # Obtener el ancho de la línea de texto
-            if width < max_width:
-                current_line = test_line
-            else:
-                if current_line:
-                    lines.append(current_line)
-                current_line = word  # Comienza una nueva línea con la palabra actual
-        if current_line:
-            lines.append(current_line)
-        return lines
-
-    
     def finalizar_juego(self, id_usuario, respuestas, puntos_totales):
         """
         Registra el fin de un juego y guarda los resultados en la base de datos.
