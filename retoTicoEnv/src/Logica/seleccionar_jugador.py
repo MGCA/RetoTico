@@ -36,11 +36,33 @@ class SeleccionarJugador:
         return surfaces
 
     def create_buttons(self):
-        return {
-            "Volver": pygame.Rect(self.screen_width // 2 - 150, self.screen_height - 100, 100, 50),
-            "Registrar Nuevo": pygame.Rect(self.screen_width // 2 + 50, self.screen_height - 100, 150, 50),
-            "Iniciar Juego": pygame.Rect(self.screen_width // 2 - 75, self.screen_height - 100, 150, 50)
-        }
+        buttons = {}
+        button_texts = ["Volver", "Registrar Nuevo", "Iniciar Juego"]
+        
+        # Espacio entre los botones
+        vertical_margin = 10
+        # Establece el espacio de los botones desde la parte inferior de la pantalla
+        initial_y = self.screen_height - 100
+
+        for text in button_texts:
+            # Calcula el ancho y alto del botón basado en el tamaño del texto
+            text_surface = self.font.render(text, True, (255, 255, 255))
+            button_width = text_surface.get_width() + 20  # Añadir margen
+            button_height = text_surface.get_height() + 20  # Añadir margen
+
+            # Centra los botones horizontalmente en la pantalla
+            button_rect = pygame.Rect(self.screen_width // 2 - button_width // 2, 
+                                    initial_y - (button_height + vertical_margin), 
+                                    button_width, 
+                                    button_height)
+            
+            # Guardar el botón en el diccionario de botones
+            buttons[text] = button_rect
+
+            # Actualizar la posición inicial_y para el siguiente botón
+            initial_y = button_rect.top - vertical_margin
+
+        return buttons
 
     def renderizar_jugadores(self):
         self.screen.fill((0, 0, 0))
@@ -50,11 +72,15 @@ class SeleccionarJugador:
         self.renderizar_botones(["Volver", "Registrar Nuevo"])
 
     def renderizar_botones(self, botones):
+        y_offset = 0  # Para mantener los botones ordenados verticalmente
         for boton in botones:
             rect = self.buttons[boton]
+            # Reajustar la posición vertical si es necesario
+            rect.y = self.screen_height - 100 - y_offset
             pygame.draw.rect(self.screen, (255, 255, 255), rect, 2)
             btn_text = self.font.render(boton, True, (255, 255, 255))
             self.screen.blit(btn_text, (rect.x + 10, rect.y + 10))
+            y_offset += rect.height + 10  # Ajusta la distancia entre botones
 
     def seleccion_jugador(self):
         if not self.jugadores:
@@ -197,8 +223,6 @@ class SeleccionarJugador:
             if running:
                 self.renderizar_categorias(seleccionadas)
                 pygame.display.flip()
-
-
     
     def iniciar_juego(self, jugador):
         """Inicia el juego con el jugador seleccionado."""

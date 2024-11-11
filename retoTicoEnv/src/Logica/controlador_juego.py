@@ -172,7 +172,7 @@ class ControladorJuego:
             for linea in lineas_pregunta:
                 # La palabra "Pregunta" en verde, el resto en blanco
                 if linea.startswith("Pregunta"):
-                    superficie_pregunta = self.renderizador.fuente.render(linea, True, (0, 255, 0))  # Verde
+                    superficie_pregunta = self.renderizador.fuente.render(linea, True, (255, 255, 255))  # Verde
                 else:
                     superficie_pregunta = self.renderizador.fuente.render(linea, True, (255, 255, 255))  # Blanco
 
@@ -184,7 +184,7 @@ class ControladorJuego:
             mensaje_respuesta = f"Respuesta: {resultado['respuesta']} - {'Correcta' if resultado['es_correcta'] else 'Incorrecta'}"
             lineas_respuesta = wrap_text(mensaje_respuesta, self.ancho_pantalla - 100)  # Ajustar la respuesta
             for linea in lineas_respuesta:
-                superficie_respuesta = self.renderizador.fuente.render(linea, True, (255, 255, 255))
+                superficie_respuesta = self.renderizador.fuente.render(linea, True, (0, 128, 255))
                 if scroll_area.collidepoint(50, y_offset - scroll_offset):
                     self.pantalla.blit(superficie_respuesta, (50, y_offset - scroll_offset))  # Mostrar la respuesta
                 y_offset += superficie_respuesta.get_height() + 20  # Espacio entre respuestas
@@ -354,12 +354,13 @@ class ControladorJuego:
             print("No hay jugadores registrados. Por favor, registre un jugador primero.")
 
     def volver_menu(self):
-        """Volver al menú principal"""
+        # Implementa la lógica para regresar al menú principal aquí
         print("Volver al menú principal")
         from SistemaRetoTico.menu import Menu  # Import Menu here to avoid circular import issues
         menu = Menu(self.pantalla, self.ancho_pantalla, self.alto_pantalla)
         menu.show()
 
+        # Mantén el ciclo de eventos abierto mientras el usuario está en el menú
         running = True
         while running:
             for event in pygame.event.get():
@@ -367,8 +368,6 @@ class ControladorJuego:
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     menu.handle_click(event.pos)
-
-        pygame.quit()
 
     def salir(self):
         """Cierra el juego y sale de Pygame"""
