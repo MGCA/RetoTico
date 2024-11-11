@@ -1,6 +1,7 @@
 import pygame
 import sys
 import os
+import subprocess
 from Logica.registrar_jugador import RegistrarJugador
 from Logica.seleccionar_jugador import SeleccionarJugador
 from Datos.seleccion import Seleccion
@@ -147,7 +148,20 @@ class Menu:
             mostrar_jugadores.show()
 
     def mostrar_acerca_de(self):
-        print("Acerca de: Esta es la aplicación RetoTico...")
+        # Ruta del archivo README.md
+        readme_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'doc', 'README.md')
+        
+        try:
+            # Comprobamos que el archivo existe
+            if os.path.exists(readme_path):
+                # Para Windows, intentamos abrir con el Bloc de notas
+                subprocess.Popen(['notepad', readme_path])
+                print("Abriendo el archivo README.md en el Bloc de notas.")
+            else:
+                print("Archivo README.md no encontrado en:", readme_path)
+            
+        except Exception as e:
+            print(f"Error al intentar abrir el archivo: {e}")
 
     def mostrar_ajustes(self):
         print("Mostrando ajustes...")

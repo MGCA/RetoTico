@@ -11,7 +11,7 @@ class RenderizadorJuego:
     def dibujar_info_jugador(self, jugador, dificultad, estado):
         if not self.juego_terminado:
             info = [
-                (f"Jugador: {jugador}", (20, 20)),
+                (f"Jugador: {jugador[1]}", (20, 20)),
                 (f"Dificultad: {dificultad}", (20, 60)),
                 (f"Puntaje: {estado.puntaje}", (self.ancho_pantalla - 200, 20)),
                 (f"Aciertos: {estado.respuestas_correctas}", (self.ancho_pantalla - 200, 60)),
