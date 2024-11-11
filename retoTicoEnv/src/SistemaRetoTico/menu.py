@@ -1,6 +1,7 @@
 import pygame
 import sys
 import os
+import subprocess
 from Logica.registrar_jugador import RegistrarJugador
 from Logica.seleccionar_jugador import SeleccionarJugador
 from Datos.seleccion import Seleccion
@@ -8,7 +9,7 @@ from SistemaRetoTico.iniciar import Iniciar
 from SistemaRetoTico.politicasDePrivacidad import PoliticasDePrivacidad
 from configuracion.db_setup import Db_setup
 from configuracion.db_insertarDatos import Db_insertarDatos
-from Logica.mostrar_jugadores import MostrarJugadores  # Asegúrate de que la ruta sea correcta
+from Logica.mostrar_jugadores import MostrarJugadores
 
 class Menu:
     def __init__(self, screen, screen_width, screen_height):
@@ -20,12 +21,12 @@ class Menu:
         self.options = ["Iniciar", "Jugadores", "Acerca de", "Ajustes", "Políticas de Privacidad", "Salir"]
         self.colors = {"background": (0, 0, 0), "text": (255, 255, 255)}
         self.icons = self.load_icons()
-        self.estudiantes = [("Michael Chavarria Alvarado", "5-0415-0045"), ("Estela Artavia Aguilar", "0-0000-0000")]
-
+        self.estudiantes = [("Michael Chavarria Alvarado", "5-0415-0045"), ("Estela Artavia Aguilar", "1-1251-0048")]
+        self.play_background_music('music/nature-reserve.wav')
+        
+        # Inicializar BD solo una vez
         Db_setup.create_tables()
         Db_insertarDatos.insertar_datos()
-
-        self.play_background_music('music/nature-reserve.wav')
 
     def get_icon_path(self, icon_name):
         base_path = os.path.dirname(os.path.abspath(__file__))
@@ -35,12 +36,18 @@ class Menu:
         icon_files = ["iniciar.png", "jugadores.png", "acerca_de.png", "ajustes.png", "politicas_privacidad.png", "salir.png"]
         icons = {}
         size = (40, 40)
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        icons_folder = os.path.join(base_path, '..', 'assets', 'icons')
+
         for option, icon_name in zip(self.options, icon_files):
-            icon_path = self.get_icon_path(icon_name)
+            icon_path = os.path.join(icons_folder, icon_name)
             if os.path.exists(icon_path):
-                icon = pygame.image.load(icon_path)
-                icon = pygame.transform.scale(icon, size)
-                icons[option] = icon
+                try:
+                    icon = pygame.image.load(icon_path)
+                    icon = pygame.transform.scale(icon, size)
+                    icons[option] = icon
+                except pygame.error as e:
+                    print(f"Error al cargar el icono {icon_name}: {e}")
             else:
                 print(f"Ícono no encontrado: {icon_path}")
         return icons
@@ -64,6 +71,11 @@ class Menu:
         loading_rect = pygame.Rect(100, screen_height - 100, screen_width - 200, 30)
 
         for i in range(101):
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+
             self.screen.fill(self.colors["background"])
             self.screen.blit(logo, (0, 0))
             pygame.draw.rect(self.screen, (200, 200, 200), loading_rect)
@@ -118,34 +130,54 @@ class Menu:
                 return
 
     def mostrar_politicas_privacidad(self):
+        if not pygame.display.get_init():  # Verifica si Pygame ha sido inicializado
+            print("Pygame no está inicializado. No se puede mostrar las políticas.")
+            return
+
         politicas = PoliticasDePrivacidad(self.screen, "RetoTico", self.estudiantes)
         politicas.mostrar_politicas()
+
         waiting = True
         while waiting:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     waiting = False
+                    pygame.quit()  # Asegúrate de cerrar Pygame aquí
+                    sys.exit()  # Salir del programa correctamente
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         waiting = False
-        self.show()
+
+        # Después de que se cierre el cuadro de políticas, vuelve al menú solo si Pygame sigue activo
+        if pygame.display.get_init():
+            self.show()  # Mostrar el menú principal nuevamente
 
     def mostrar_jugadores(self):
-        # Crear una instancia de MostrarJugadores
         mostrar_jugadores = MostrarJugadores(self.screen, self.screen_width, self.screen_height)
-        
-        # Bucle principal para gestionar eventos y actualizar pantalla
         running = True
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    mostrar_jugadores.handle_click(event.pos)  # Pasar la posición del clic
-            mostrar_jugadores.show()  # Dibujar el estado actual
+                    mostrar_jugadores.handle_click(event.pos)
+            mostrar_jugadores.show()
 
     def mostrar_acerca_de(self):
-        print("Acerca de: Esta es la aplicación RetoTico...")
+        # Ruta del archivo README.md
+        readme_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'doc', 'README.md')
+        
+        try:
+            # Comprobamos que el archivo existe
+            if os.path.exists(readme_path):
+                # Para Windows, intentamos abrir con el Bloc de notas
+                subprocess.Popen(['notepad', readme_path])
+                print("Abriendo el archivo README.md en el Bloc de notas.")
+            else:
+                print("Archivo README.md no encontrado en:", readme_path)
+            
+        except Exception as e:
+            print(f"Error al intentar abrir el archivo: {e}")
 
     def mostrar_ajustes(self):
         print("Mostrando ajustes...")

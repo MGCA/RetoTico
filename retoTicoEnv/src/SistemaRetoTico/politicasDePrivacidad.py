@@ -2,6 +2,7 @@ import pygame
 
 class PoliticasDePrivacidad:
     def __init__(self, screen, nombre_del_sistema, estudiantes):
+        pygame.init()
         pygame.display.set_caption("Politicas")
         self.screen = screen
         self.nombre_del_sistema = nombre_del_sistema
@@ -86,8 +87,9 @@ class PoliticasDePrivacidad:
         waiting = True
         while waiting:
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    waiting = False
+                if event.type == pygame.QUIT:  # Escuchar cuando se cierra la ventana
+                    pygame.quit()  # Finaliza Pygame
+                    exit()  # Termina el programa
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:  # Presiona ESC para volver
                         waiting = False
@@ -106,7 +108,8 @@ class PoliticasDePrivacidad:
         from SistemaRetoTico.menu import Menu  # Import Menu here to avoid circular import issues
         menu = Menu(self.screen, self.screen_width, self.screen_height)
         menu.show()
-        
+
+        # Mantén el ciclo de eventos abierto mientras el usuario está en el menú
         running = True
         while running:
             for event in pygame.event.get():
@@ -114,9 +117,6 @@ class PoliticasDePrivacidad:
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     menu.handle_click(event.pos)
-                    
-        pygame.quit()
-        pass
 
     def formatear_estudiantes(self):
         return "\n".join([f"{nombre} - Cédula: {cedula}" for nombre, cedula in self.estudiantes])

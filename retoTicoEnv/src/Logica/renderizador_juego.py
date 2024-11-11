@@ -9,14 +9,15 @@ class RenderizadorJuego:
         self.juego_terminado = False  # Estado para saber si el juego ha terminado
 
     def dibujar_info_jugador(self, jugador, dificultad, estado):
-        # Muestra la información del jugador mientras el juego no haya terminado
         if not self.juego_terminado:
             info = [
-                (f"Jugador: {jugador}", (20, 20)),
+                (f"Jugador: {jugador[1]}", (20, 20)),
                 (f"Dificultad: {dificultad}", (20, 60)),
                 (f"Puntaje: {estado.puntaje}", (self.ancho_pantalla - 200, 20)),
                 (f"Aciertos: {estado.respuestas_correctas}", (self.ancho_pantalla - 200, 60)),
-                (f"Desaciertos: {estado.respuestas_incorrectas}", (self.ancho_pantalla - 200, 100))
+                (f"Desaciertos: {estado.respuestas_incorrectas}", (self.ancho_pantalla - 200, 100)),
+                (f"Total de Preguntas: {estado.preguntas_totales}", (20, 100)),
+                (f"Preguntas Restantes: {estado.preguntas_restantes}", (20, 140)),
             ]
             for texto, pos in info:
                 superficie = self.fuente.render(texto, True, (0, 0, 0))
@@ -26,38 +27,61 @@ class RenderizadorJuego:
         if not pregunta:
             return None, None  # Asegúrate de devolver exactamente dos valores cuando no haya pregunta.
 
-        # Dibuja el texto de la pregunta
-        superficie_pregunta = self.fuente.render(pregunta["pregunta"], True, (0, 0, 0))
-        pos_x = (self.ancho_pantalla - superficie_pregunta.get_width()) // 2
-        pos_y = (self.alto_pantalla - superficie_pregunta.get_height()) // 2
-        self.pantalla.blit(superficie_pregunta, (pos_x, pos_y))
-        
+        # Ajuste dinámico de la pregunta
+        max_ancho_pregunta = self.ancho_pantalla - 40  # 20px de margen a cada lado
+        palabras = pregunta["pregunta"].split(" ")
+        lineas_pregunta = []
+        linea_actual = ""
+
+        # Dividir la pregunta en varias líneas si es demasiado larga
+        for palabra in palabras:
+            if self.fuente.size(linea_actual + " " + palabra)[0] <= max_ancho_pregunta:
+                linea_actual += " " + palabra if linea_actual else palabra
+            else:
+                lineas_pregunta.append(linea_actual)
+                linea_actual = palabra
+        if linea_actual:  # Asegurarse de agregar la última línea
+            lineas_pregunta.append(linea_actual)
+
+        # Dibujar la pregunta en líneas
+        pos_y = (self.alto_pantalla - len(lineas_pregunta) * self.fuente.get_height()) // 2
+        for linea in lineas_pregunta:
+            superficie_pregunta = self.fuente.render(linea, True, (0, 0, 0))
+            pos_x = (self.ancho_pantalla - superficie_pregunta.get_width()) // 2
+            self.pantalla.blit(superficie_pregunta, (pos_x, pos_y))
+            pos_y += self.fuente.get_height()
+
         # Dibuja las opciones
         rectangulos_opciones = []
+        espacio_y_opciones = pos_y + 20  # Espacio después de la pregunta
+
         for idx, opcion in enumerate(pregunta["opciones"]):
             color = (0, 128, 0) if respuesta_seleccionada == idx else (0, 0, 0)
+
+            # Ajuste dinámico de las opciones
+            superficie_opcion = self.fuente.render(opcion, True, (0, 0, 0))
             rect_checkbox = pygame.Rect(self.ancho_pantalla // 2 - 100, 
-                                    pos_y + 70 + (idx * 40), 20, 20)
+                                        espacio_y_opciones + (idx * 40), 20, 20)
             pygame.draw.rect(self.pantalla, color, rect_checkbox, 2)
             
             if respuesta_seleccionada == idx:
                 pygame.draw.line(self.pantalla, color, 
-                            (rect_checkbox.x + 5, rect_checkbox.y + 5),
-                            (rect_checkbox.x + 15, rect_checkbox.y + 15), 2)
+                                (rect_checkbox.x + 5, rect_checkbox.y + 5),
+                                (rect_checkbox.x + 15, rect_checkbox.y + 15), 2)
                 pygame.draw.line(self.pantalla, color,
-                            (rect_checkbox.x + 15, rect_checkbox.y + 5),
-                            (rect_checkbox.x + 5, rect_checkbox.y + 15), 2)
+                                (rect_checkbox.x + 15, rect_checkbox.y + 5),
+                                (rect_checkbox.x + 5, rect_checkbox.y + 15), 2)
             
-            superficie_opcion = self.fuente.render(opcion, True, (0, 0, 0))
             self.pantalla.blit(superficie_opcion, (self.ancho_pantalla // 2 - 50, 
-                                            pos_y + 70 + (idx * 40)))
+                                                espacio_y_opciones + (idx * 40)))
             rectangulos_opciones.append(rect_checkbox)
-        
+
         # Dibujar botón verificar
-        ultima_opcion_y = pos_y + 70 + (len(pregunta["opciones"]) * 40)
+        ultima_opcion_y = espacio_y_opciones + (len(pregunta["opciones"]) * 40)
         self.boton_verificar = self.dibujar_boton_verificar(ultima_opcion_y + 20)
-            
+
         return rectangulos_opciones, self.boton_verificar
+
 
     def mostrar_mensaje(self, mensaje, posicion=None, tamaño=25, color=(0, 0, 0)):
         superficie = self.fuente.render(mensaje, True, color)
@@ -85,14 +109,24 @@ class RenderizadorJuego:
             return rect_boton
 
     def dibujar_menu_terminado(self):
-        # Mostrar mensaje de "Juego Terminado"
-        self.mostrar_mensaje("¡Juego Terminado!", tamaño=50, color=(255, 0, 0))
+        # Mostrar mensaje de "Juego Terminado" en la parte superior derecha
+        mensaje = "¡Juego Terminado!"
+        superficie_mensaje = self.renderizador.fuente.render(mensaje, True, (255, 0, 0))  # Rojo
+        x_mensaje = self.ancho_pantalla - superficie_mensaje.get_width() - 20  # 20px de margen desde la derecha
+        y_mensaje = 20  # Cerca de la parte superior
         
-        # Mostrar botones de opciones
+        # Mostrar el mensaje "Juego Terminado"
+        self.pantalla.blit(superficie_mensaje, (x_mensaje, y_mensaje))
+        
+        # Mostrar botones de opciones debajo del mensaje
         opciones = ["Volver a Jugar", "Cambiar Dificultad", "Cambiar Jugador", "Menú Principal", "Salir"]
         for idx, opcion in enumerate(opciones):
-            y = self.alto_pantalla // 2 + 60 + (idx * 50)
-            rect_boton = self.dibujar_boton_opcion(opcion, y)
+            y = y_mensaje + superficie_mensaje.get_height() + 40 + (idx * 50)  # Ajustar la posición en Y para cada opción
+            rect_boton = self.dibujar_boton_opcion(opcion, y)  # Dibujar el botón para cada opción
+
+        # Actualizar la pantalla para mostrar los cambios
+        pygame.display.flip()
+
 
     def dibujar_boton_opcion(self, texto, y):
         # Configuración del botón de opciones

@@ -1,8 +1,13 @@
 import sqlite3
+import sys
+import os
 
 class InsertarJuegos:
     def __init__(self, db_name='retotico.db'):
-        self.db_name = db_name
+        # Definir la ruta completa de la base de datos en el directorio del usuario
+        user_dir = os.path.expanduser("~")
+        self.db_path = os.path.join(user_dir, db_name)
+        
         self.conn = None
         self.cursor = None
 
@@ -10,7 +15,7 @@ class InsertarJuegos:
         """ Abre la conexión a la base de datos """
         if self.conn is None:
             try:
-                self.conn = sqlite3.connect(self.db_name)
+                self.conn = sqlite3.connect(self.db_path)
                 self.cursor = self.conn.cursor()
             except sqlite3.Error as e:
                 print(f"Error al abrir la base de datos: {e}")

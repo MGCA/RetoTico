@@ -1,11 +1,15 @@
 import sqlite3
+import sys
+import os
 
 class Insercion:
     def __init__(self, db_name='retotico.db'):
-        self.db_name = db_name
+        # Definir la ruta completa de la base de datos en el directorio del usuario
+        user_dir = os.path.expanduser("~")
+        self.db_path = os.path.join(user_dir, db_name)
 
     def insertar_usuario(self, user_data):
-        conn = sqlite3.connect(self.db_name)
+        conn = sqlite3.connect(self.db_path)
         c = conn.cursor()
 
         c.execute('''

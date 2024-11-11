@@ -40,9 +40,9 @@ class MostrarJugadores:
         for idx, jugador in enumerate(self.jugadores):
             nombre = f"{jugador[1]} {jugador[2]}"
             button_text = self.font.render(nombre, True, (255, 255, 255))
-            button_rect = pygame.Rect(self.screen_width // 2 - button_text.get_width() // 2, 100 + idx * (button_height + 10), button_text.get_width(), button_height)
+            button_rect = pygame.Rect(self.screen_width // 2 - button_text.get_width() // 2 - 10, 100 + idx * (button_height + 10), button_text.get_width() + 20, button_height)
             pygame.draw.rect(self.screen, (0, 0, 255), button_rect)
-            self.screen.blit(button_text, (button_rect.x + 10, button_rect.y + 10))
+            self.screen.blit(button_text, (button_rect.x + 10, button_rect.y + (button_height - button_text.get_height()) // 2))
 
             # Almacenar el botón en el jugador para manejar clics
             jugador.append(button_rect)
@@ -51,7 +51,9 @@ class MostrarJugadores:
         volver_menu_button = pygame.Rect(self.screen_width // 2 - 100, self.screen_height - 80, 200, 50)
         pygame.draw.rect(self.screen, (255, 0, 0), volver_menu_button)
         volver_menu_text = self.font.render("Volver al Menú", True, (255, 255, 255))
-        self.screen.blit(volver_menu_text, (volver_menu_button.x + 10, volver_menu_button.y + 10))
+        # Centramos el texto en el botón
+        text_rect = volver_menu_text.get_rect(center=volver_menu_button.center)
+        self.screen.blit(volver_menu_text, text_rect.topleft)
         self.volver_menu_button = volver_menu_button  # Guardar el botón para gestionar clics
 
         pygame.display.flip()
@@ -76,8 +78,10 @@ class MostrarJugadores:
         # Botón "Volver a la Lista de Jugadores"
         volver_lista_button = pygame.Rect(self.screen_width // 2 - 100, self.screen_height - 80, 200, 50)
         pygame.draw.rect(self.screen, (255, 0, 0), volver_lista_button)
-        volver_lista_text = self.font.render("Volver a la Lista de Jugadores", True, (255, 255, 255))
-        self.screen.blit(volver_lista_text, (volver_lista_button.x + 10, volver_lista_button.y + 10))
+        volver_lista_text = self.font.render("Volver a la Lista", True, (255, 255, 255))
+        # Centramos el texto en el botón
+        text_rect = volver_lista_text.get_rect(center=volver_lista_button.center)
+        self.screen.blit(volver_lista_text, text_rect.topleft)
         self.volver_lista_button = volver_lista_button  # Guardar el botón para gestionar clics
 
         pygame.display.flip()
@@ -87,12 +91,10 @@ class MostrarJugadores:
         if self.estado == "lista":
             if self.volver_menu_button.collidepoint(pos):
                 print("Volviendo al menú principal...")  # Acción para el botón de menú
-                # Aquí podrías agregar el código necesario para volver al menú principal de la aplicación
-                from SistemaRetoTico.menu import Menu  # Import Menu here to avoid circular import issues
+                from SistemaRetoTico.menu import Menu
                 menu = Menu(self.screen, self.screen_width, self.screen_height)
-                menu.show()  # Llamamos al menú principal
+                menu.show()
 
-                # Bucle para mostrar el menú hasta que se cierre
                 running = True
                 while running:
                     for event in pygame.event.get():
@@ -107,7 +109,7 @@ class MostrarJugadores:
                         self.mostrar_historial(jugador[0])
         elif self.estado == "historial":
             if self.volver_lista_button.collidepoint(pos):
-                self.estado = "lista"  # Volver a la lista de jugadores
+                self.estado = "lista"
 
     def show(self):
         """ Método para dibujar la pantalla en base al estado actual """
@@ -115,3 +117,4 @@ class MostrarJugadores:
             self.dibujar_lista_jugadores()
         elif self.estado == "historial":
             self.dibujar_historial()
+

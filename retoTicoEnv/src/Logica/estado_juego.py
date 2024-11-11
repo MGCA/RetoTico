@@ -6,5 +6,9 @@ class EstadoJuego:
         self.respuestas_incorrectas = 0
         self.pregunta_actual = 0
         self.respuesta_seleccionada = None
+        self.respuesta = None
         self.juego_terminado = False
+        self.juego_salir = False
         self.juego_pausado = False
+        self.preguntas_totales = 0
+        self.preguntas_restantes = 0
