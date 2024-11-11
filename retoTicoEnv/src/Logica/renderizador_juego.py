@@ -86,14 +86,24 @@ class RenderizadorJuego:
             return rect_boton
 
     def dibujar_menu_terminado(self):
-        # Mostrar mensaje de "Juego Terminado"
-        self.mostrar_mensaje("¡Juego Terminado!", tamaño=50, color=(255, 0, 0))
+        # Mostrar mensaje de "Juego Terminado" en la parte superior derecha
+        mensaje = "¡Juego Terminado!"
+        superficie_mensaje = self.renderizador.fuente.render(mensaje, True, (255, 0, 0))  # Rojo
+        x_mensaje = self.ancho_pantalla - superficie_mensaje.get_width() - 20  # 20px de margen desde la derecha
+        y_mensaje = 20  # Cerca de la parte superior
         
-        # Mostrar botones de opciones
+        # Mostrar el mensaje "Juego Terminado"
+        self.pantalla.blit(superficie_mensaje, (x_mensaje, y_mensaje))
+        
+        # Mostrar botones de opciones debajo del mensaje
         opciones = ["Volver a Jugar", "Cambiar Dificultad", "Cambiar Jugador", "Menú Principal", "Salir"]
         for idx, opcion in enumerate(opciones):
-            y = self.alto_pantalla // 2 + 60 + (idx * 50)
-            rect_boton = self.dibujar_boton_opcion(opcion, y)
+            y = y_mensaje + superficie_mensaje.get_height() + 40 + (idx * 50)  # Ajustar la posición en Y para cada opción
+            rect_boton = self.dibujar_boton_opcion(opcion, y)  # Dibujar el botón para cada opción
+
+        # Actualizar la pantalla para mostrar los cambios
+        pygame.display.flip()
+
 
     def dibujar_boton_opcion(self, texto, y):
         # Configuración del botón de opciones

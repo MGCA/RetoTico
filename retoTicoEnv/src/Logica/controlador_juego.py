@@ -64,6 +64,9 @@ class ControladorJuego:
         for idx, rect in enumerate(rectangulos_opciones):
             if rect.collidepoint(pos):
                 self.estado.respuesta_seleccionada = idx
+                pregunta_actual = self.gestor_preguntas.obtener_pregunta_actual(self.estado.pregunta_actual)
+                # Guardar el texto de la respuesta seleccionada
+                self.estado.respuesta = pregunta_actual["opciones"][idx]
                 break
 
     def verificar_respuesta(self):
@@ -75,6 +78,7 @@ class ControladorJuego:
                 "idPregunta": pregunta_actual["idPregunta"],
                 "pregunta": pregunta_actual["pregunta"],
                 "respuesta_seleccionada": self.estado.respuesta_seleccionada,
+                "respuesta": self.estado.respuesta,  # Agregar la respuesta en texto
                 "es_correcta": correcta,
                 "puntaje_obtenido": 10 if correcta else 0
             }
@@ -95,23 +99,113 @@ class ControladorJuego:
             self.estado.pregunta_actual += 1
             self.estado.preguntas_restantes -= 1  # Disminuir las preguntas restantes
             self.estado.respuesta_seleccionada = None
+            self.estado.respuesta = None  # Limpiar la respuesta seleccionada
 
             if self.estado.pregunta_actual >= self.estado.preguntas_totales:
-                self.estado.juego_terminado = True
+                # Aquí se llama a la nueva función para mostrar el mensaje de finalización
+                self.finalizar_juego(self.jugador[0], self.resultados_respuestas, self.estado.puntaje)
                 self.mostrar_resultados_finales()
+
         else:
             self.renderizador.mostrar_mensaje("Seleccione una opción antes de verificar.", color=(255, 0, 0))
 
 
+
     def mostrar_resultados_finales(self):
-        self.finalizar_juego(self.jugador[0],self.resultados_respuestas,self.estado.puntaje)
-        self.renderizador.mostrar_mensaje(f"¡Juego terminado! Puntaje final: {self.estado.puntaje}",color=(0, 0, 255))
+        """Muestra los resultados finales con desplazamiento y adaptabilidad al tamaño de pantalla."""
         
+        # Limpiar la pantalla y mostrar un fondo negro
+        self.pantalla.fill((0, 0, 0))  # Fondo negro
         
+        # Título "Resultados Finales"
+        mensaje_resultados = "Resultados Finales:"
+        superficie_resultados = self.renderizador.fuente.render(mensaje_resultados, True, (255, 255, 255))
+        x_resultados = (self.ancho_pantalla - superficie_resultados.get_width()) // 2
+        y_resultados = 20  # Colocarlo cerca de la parte superior
         
-        print("Resultados de cada pregunta:")
+        # Mostrar el título de los resultados finales
+        self.pantalla.blit(superficie_resultados, (x_resultados, y_resultados))
+        
+        # Variables para manejar el desplazamiento
+        scroll_offset = 0  # Desplazamiento inicial
+        scroll_speed = 20  # Velocidad de desplazamiento
+        y_offset = y_resultados + superficie_resultados.get_height() + 20  # Espacio debajo del título
+        
+        # Limitar la altura visible (tamaño de la pantalla menos un margen)
+        max_height = self.alto_pantalla - 100  # 100px de margen para no tocar el borde inferior
+        
+        # Iterar sobre las respuestas y mostrarlas
         for resultado in self.resultados_respuestas:
-            print(resultado)  # O puedes guardarlo en un archivo para consultas posteriores
+            # Mostrar la pregunta
+            mensaje_pregunta = f"Pregunta: {resultado['pregunta']}"
+            superficie_pregunta = self.renderizador.fuente.render(mensaje_pregunta, True, (255, 255, 255))
+            x_pregunta = 50  # Márgenes desde la izquierda
+            self.pantalla.blit(superficie_pregunta, (x_pregunta, y_offset - scroll_offset))  # Mostrar la pregunta
+            y_offset += superficie_pregunta.get_height() + 10  # Espacio entre pregunta y respuesta
+            
+            # Mostrar la respuesta debajo de la pregunta
+            mensaje_respuesta = f"Respuesta: {resultado['respuesta']} - {'Correcta' if resultado['es_correcta'] else 'Incorrecta'}"
+            superficie_respuesta = self.renderizador.fuente.render(mensaje_respuesta, True, (255, 255, 255))
+            self.pantalla.blit(superficie_respuesta, (x_pregunta, y_offset - scroll_offset))  # Mostrar la respuesta
+            y_offset += superficie_respuesta.get_height() + 20  # Espacio entre respuestas
+            
+            # Controlar el desplazamiento si el contenido es mayor al área visible
+            if y_offset > max_height:
+                scroll_offset += scroll_speed  # Aumentar el desplazamiento
+
+        # Mostrar el puntaje total en la parte inferior derecha
+        mensaje_puntaje = f"Puntaje Total: {self.estado.puntaje}"
+        superficie_puntaje = self.renderizador.fuente.render(mensaje_puntaje, True, (0, 255, 0))  # Verde
+        x_puntaje = self.ancho_pantalla - superficie_puntaje.get_width() - 20  # Parte inferior derecha
+        y_puntaje = self.alto_pantalla - 40  # Un poco por encima del borde inferior
+        
+        # Dibujar el puntaje total
+        self.pantalla.blit(superficie_puntaje, (x_puntaje, y_puntaje))
+        
+        # Mensaje "Presiona una tecla para continuar" centrado en la parte inferior
+        mensaje_continuar = "Presiona una tecla para continuar"
+        superficie_continuar = self.renderizador.fuente.render(mensaje_continuar, True, (255, 255, 255))  # Blanco
+        x_continuar = (self.ancho_pantalla - superficie_continuar.get_width()) // 2  # Centrado en X
+        y_continuar = self.alto_pantalla - 80  # Un poco por encima del puntaje total
+        
+        # Dibujar el mensaje "Presiona una tecla para continuar"
+        self.pantalla.blit(superficie_continuar, (x_continuar, y_continuar))
+
+        # Actualizar la pantalla para mostrar los cambios
+        pygame.display.flip()
+
+        # Esperar que el jugador presione una tecla para terminar y salir
+        esperando = True
+        while esperando:
+            for evento in pygame.event.get():
+                if evento.type == pygame.QUIT:
+                    pygame.quit()
+                if evento.type == pygame.KEYDOWN:  # Si presionan una tecla
+                    self.estado.juego_terminado = True
+                    esperando = False
+                    break  # Salir del ciclo para terminar
+
+
+
+    def wrap_text(self, text, max_width):
+        """Divide el texto en líneas que se ajusten al ancho máximo permitido"""
+        words = text.split(' ')
+        lines = []
+        current_line = ""
+        for word in words:
+            # Verificar si agregar la palabra excede el ancho máximo permitido
+            test_line = current_line + " " + word if current_line else word
+            width = self.renderizador.fuente.size(test_line)[0]  # Obtener el ancho de la línea de texto
+            if width < max_width:
+                current_line = test_line
+            else:
+                if current_line:
+                    lines.append(current_line)
+                current_line = word  # Comienza una nueva línea con la palabra actual
+        if current_line:
+            lines.append(current_line)
+        return lines
+
     
     def finalizar_juego(self, id_usuario, respuestas, puntos_totales):
         """
