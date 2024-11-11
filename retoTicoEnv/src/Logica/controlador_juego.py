@@ -26,6 +26,9 @@ class ControladorJuego:
             {"texto": "Volver al Menú", "accion": self.volver_menu, "rect": pygame.Rect(0, 0, 200, 50)},
             {"texto": "Salir", "accion": self.salir, "rect": pygame.Rect(0, 0, 200, 50)},
         ]
+        # Inicializar el total y las preguntas restantes en el estado
+        self.estado.preguntas_totales = len(self.gestor_preguntas.preguntas)
+        self.estado.preguntas_restantes = self.estado.preguntas_totales
 
     def actualizar(self, eventos):
         self.pantalla.fill((255, 255, 255))
@@ -68,7 +71,6 @@ class ControladorJuego:
             pregunta_actual = self.gestor_preguntas.obtener_pregunta_actual(self.estado.pregunta_actual)
             correcta = pregunta_actual["correcta"] == self.estado.respuesta_seleccionada
 
-            # Guardar resultado de la respuesta
             resultado = {
                 "idPregunta": pregunta_actual["idPregunta"],
                 "pregunta": pregunta_actual["pregunta"],
@@ -89,12 +91,17 @@ class ControladorJuego:
             pygame.display.flip()
             pygame.time.wait(1000)
 
+            # Actualizar pregunta actual y preguntas restantes
             self.estado.pregunta_actual += 1
+            self.estado.preguntas_restantes -= 1  # Disminuir las preguntas restantes
             self.estado.respuesta_seleccionada = None
 
-            if self.estado.pregunta_actual >= len(self.gestor_preguntas.preguntas):
+            if self.estado.pregunta_actual >= self.estado.preguntas_totales:
                 self.estado.juego_terminado = True
                 self.mostrar_resultados_finales()
+        else:
+            self.renderizador.mostrar_mensaje("Seleccione una opción antes de verificar.", color=(255, 0, 0))
+
 
     def mostrar_resultados_finales(self):
         self.finalizar_juego(self.jugador[0],self.resultados_respuestas,self.estado.puntaje)

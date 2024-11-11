@@ -9,14 +9,15 @@ class RenderizadorJuego:
         self.juego_terminado = False  # Estado para saber si el juego ha terminado
 
     def dibujar_info_jugador(self, jugador, dificultad, estado):
-        # Muestra la información del jugador mientras el juego no haya terminado
         if not self.juego_terminado:
             info = [
                 (f"Jugador: {jugador}", (20, 20)),
                 (f"Dificultad: {dificultad}", (20, 60)),
                 (f"Puntaje: {estado.puntaje}", (self.ancho_pantalla - 200, 20)),
                 (f"Aciertos: {estado.respuestas_correctas}", (self.ancho_pantalla - 200, 60)),
-                (f"Desaciertos: {estado.respuestas_incorrectas}", (self.ancho_pantalla - 200, 100))
+                (f"Desaciertos: {estado.respuestas_incorrectas}", (self.ancho_pantalla - 200, 100)),
+                (f"Total de Preguntas: {estado.preguntas_totales}", (20, 100)),
+                (f"Preguntas Restantes: {estado.preguntas_restantes}", (20, 140)),
             ]
             for texto, pos in info:
                 superficie = self.fuente.render(texto, True, (0, 0, 0))

@@ -8,3 +8,5 @@ class EstadoJuego:
         self.respuesta_seleccionada = None
         self.juego_terminado = False
         self.juego_pausado = False
+        self.preguntas_totales = 0
+        self.preguntas_restantes = 0
