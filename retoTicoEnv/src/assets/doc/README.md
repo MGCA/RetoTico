@@ -20,12 +20,17 @@ python retoTico.py
 Estructura del proyecto
 bash
 Copiar código
-retoTico/
-├── assets/            # Archivos estáticos como imágenes, iconos, etc.
-├── Logica/            # Código de la lógica del proyecto
-├── SistemaRetoTico/   # Funciones y clases principales
-├── main.py            # Script principal
-└── requirements.txt   # Dependencias del proyecto
+RETOTICO/
+├── retoTicoEnv/ 
+   ├── src/ 
+      ├── assets/            # carpetas como imágenes, iconos, csv, etc.
+      ├── configuracion/     # archivos de insert, create db
+      ├── assets/            # Código de manejo de select,insert,delete a bd.
+      ├── Logica/            # Código de la lógica del proyecto
+      ├── SistemaRetoTico/   # Funciones y clases principales
+      ├── icono.ico          # icono del .exe
+      ├── main.py            # Script principal
+      └── requirements.txt   # Dependencias del proyecto
 Contribuciones
 Si deseas contribuir, por favor sigue estos pasos:
 
