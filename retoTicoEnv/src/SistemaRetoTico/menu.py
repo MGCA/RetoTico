@@ -14,6 +14,11 @@ from Logica.mostrar_jugadores import MostrarJugadores
 class Menu:
     def __init__(self, screen, screen_width, screen_height):
         pygame.display.set_caption("Menu Principal")
+        # Cambiar el ícono de la ventana
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        icons_folder = os.path.join(base_path, '..', 'assets', 'icons/icon64x64.ico')
+        icon = pygame.image.load(icons_folder)
+        pygame.display.set_icon(icon)  # Establece el ícono de la ventana
         self.screen = screen
         self.screen_width = screen_width
         self.screen_height = screen_height
