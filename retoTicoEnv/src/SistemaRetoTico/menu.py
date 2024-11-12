@@ -28,7 +28,7 @@ class Menu:
         self.colors = {"background": (0, 0, 0), "text": (255, 255, 255)}
         self.icons = self.load_icons()
         self.estudiantes = [("Michael Chavarria Alvarado", "5-0415-0045"), ("Estela Artavia Aguilar", "1-1251-0048")]
-        self.music_on = True  # Variable para controlar el estado de la música
+        self.music_on = False  # Variable para controlar el estado de la música
         self.play_background_music('music/nature-reserve.wav')
         
         
@@ -83,6 +83,7 @@ class Menu:
         return switch_rect
 
     def mostrar_presentacion(self):
+        self.toggle_music()
         screen_width, screen_height = self.screen.get_size()
         logo = pygame.image.load(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../assets', 'img', 'logo.png'))
         logo = pygame.transform.scale(logo, (screen_width, screen_height))
@@ -100,6 +101,7 @@ class Menu:
             pygame.draw.rect(self.screen, (0, 255, 0), (loading_rect.x, loading_rect.y, loading_rect.width * i / 100, loading_rect.height))
             pygame.display.flip()
             pygame.time.delay(50)
+        self.toggle_music()
 
     def toggle_music(self):
         if self.music_on:
