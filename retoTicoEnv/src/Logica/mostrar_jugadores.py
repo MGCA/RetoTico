@@ -79,7 +79,6 @@ class MostrarJugadores:
         volver_lista_button = pygame.Rect(self.screen_width // 2 - 100, self.screen_height - 80, 200, 50)
         pygame.draw.rect(self.screen, (255, 0, 0), volver_lista_button)
         volver_lista_text = self.font.render("Volver a la Lista", True, (255, 255, 255))
-        # Centramos el texto en el botón
         text_rect = volver_lista_text.get_rect(center=volver_lista_button.center)
         self.screen.blit(volver_lista_text, text_rect.topleft)
         self.volver_lista_button = volver_lista_button  # Guardar el botón para gestionar clics
@@ -90,11 +89,10 @@ class MostrarJugadores:
         """ Gestiona los clics en los botones de jugadores o en 'Volver' """
         if self.estado == "lista":
             if self.volver_menu_button.collidepoint(pos):
-                print("Volviendo al menú principal...")  # Acción para el botón de menú
+                print("Volviendo al menú principal...")
                 from SistemaRetoTico.menu import Menu
                 menu = Menu(self.screen, self.screen_width, self.screen_height)
                 menu.show()
-
                 running = True
                 while running:
                     for event in pygame.event.get():
@@ -111,6 +109,8 @@ class MostrarJugadores:
         elif self.estado == "historial":
             if self.volver_lista_button.collidepoint(pos):
                 self.estado = "lista"
+                self.historial.clear()  # Limpiar el historial al volver a la lista de jugadores
+
 
     def show(self):
         """ Método para dibujar la pantalla en base al estado actual """
