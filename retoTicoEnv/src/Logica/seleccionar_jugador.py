@@ -93,10 +93,12 @@ class SeleccionarJugador:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                    sys.exit()
                     self.volver_a_inicio()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if self.buttons["Volver"].collidepoint(event.pos):
                         running = False
+                        sys.exit()
                         self.volver_a_inicio()
                     elif self.buttons["Registrar Nuevo"].collidepoint(event.pos):
                         self.registrar_nuevo_jugador()
@@ -176,6 +178,7 @@ class SeleccionarJugador:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                    sys.exit()
                     self.volver_a_inicio()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     for i, dificultad in enumerate(self.dificultades):
@@ -202,6 +205,7 @@ class SeleccionarJugador:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                    sys.exit()
                     self.volver_a_inicio()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     for i, categoria in enumerate(self.categorias):

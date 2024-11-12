@@ -267,6 +267,7 @@ class RegistrarJugador:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                    sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     menu.handle_events(event)
                     menu.handle_click(event.pos)

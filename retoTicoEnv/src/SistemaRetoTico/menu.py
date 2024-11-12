@@ -10,6 +10,7 @@ from SistemaRetoTico.politicasDePrivacidad import PoliticasDePrivacidad
 from configuracion.db_setup import Db_setup
 from configuracion.db_insertarDatos import Db_insertarDatos
 from Logica.mostrar_jugadores import MostrarJugadores
+from SistemaRetoTico.ajustes import Ajustes
 
 class Menu:
     def __init__(self, screen, screen_width, screen_height):
@@ -100,7 +101,7 @@ class Menu:
             pygame.draw.rect(self.screen, (200, 200, 200), loading_rect)
             pygame.draw.rect(self.screen, (0, 255, 0), (loading_rect.x, loading_rect.y, loading_rect.width * i / 100, loading_rect.height))
             pygame.display.flip()
-            pygame.time.delay(50)
+            pygame.time.delay(60)
         self.toggle_music()
 
     def toggle_music(self):
@@ -176,6 +177,7 @@ class Menu:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                    sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     iniciar.handle_click(event.pos)
             if not running:
@@ -211,6 +213,7 @@ class Menu:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                    sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     mostrar_jugadores.handle_click(event.pos)
             mostrar_jugadores.show()
@@ -233,3 +236,14 @@ class Menu:
 
     def mostrar_ajustes(self):
         print("Mostrando ajustes...")
+        ajustes = Ajustes(self.screen, self.screen_width, self.screen_height)
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    ajustes.handle_click(event.pos)
+            ajustes.dibujar_menu()
+        
