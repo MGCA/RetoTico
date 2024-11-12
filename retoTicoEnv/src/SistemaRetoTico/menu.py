@@ -28,7 +28,9 @@ class Menu:
         self.colors = {"background": (0, 0, 0), "text": (255, 255, 255)}
         self.icons = self.load_icons()
         self.estudiantes = [("Michael Chavarria Alvarado", "5-0415-0045"), ("Estela Artavia Aguilar", "1-1251-0048")]
+        self.music_on = True  # Variable para controlar el estado de la música
         self.play_background_music('music/nature-reserve.wav')
+        
         
         # Inicializar BD solo una vez
         Db_setup.create_tables()
@@ -63,12 +65,22 @@ class Menu:
         if os.path.exists(music_path):
             try:
                 pygame.mixer.music.load(music_path)
-                pygame.mixer.music.play(-1)
+                if self.music_on:
+                    pygame.mixer.music.play(-1)
                 print(f"Reproduciendo música: {music_file}")
             except pygame.error as e:
                 print(f"Error al cargar o reproducir la música: {e}")
         else:
             print(f"Archivo de música no encontrado: {music_path}")
+
+    def show_music_switch(self):
+        # Dibuja el ícono del switch de música en la esquina superior derecha
+        switch_text = "Sonido ON" if self.music_on else "Sonido OFF"
+        text_color = (0, 255, 0) if self.music_on else (255, 0, 0)
+        switch_surface = self.font.render(switch_text, True, text_color)
+        switch_rect = switch_surface.get_rect(topright=(self.screen_width - 20, 20))
+        self.screen.blit(switch_surface, switch_rect)
+        return switch_rect
 
     def mostrar_presentacion(self):
         screen_width, screen_height = self.screen.get_size()
@@ -87,18 +99,33 @@ class Menu:
             pygame.draw.rect(self.screen, (200, 200, 200), loading_rect)
             pygame.draw.rect(self.screen, (0, 255, 0), (loading_rect.x, loading_rect.y, loading_rect.width * i / 100, loading_rect.height))
             pygame.display.flip()
-            pygame.time.delay(10)
+            pygame.time.delay(50)
+
+    def toggle_music(self):
+        if self.music_on:
+            pygame.mixer.music.stop()
+        else:
+            pygame.mixer.music.play(-1)
+        self.music_on = not self.music_on
+        self.show()  # Redibujar el menú inmediatamente después de alternar
+
+    def handle_events(self, event):
+        # Detectar si se hizo clic en el área del switch
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.show_music_switch().collidepoint(event.pos):
+                self.toggle_music()
 
     def show(self):
         self.screen.fill(self.colors["background"])
-
-        # Cargar y mostrar el logo en la parte superior
+        # Actualizar el switch de sonido
+        self.show_music_switch()
+        
+        # Mostrar el logo y título
         icon = pygame.image.load(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../assets', 'img', 'icon.png'))
-        icon = pygame.transform.scale(icon, (100, 100))  # Ajusta el tamaño del logo
-        logo_rect = icon.get_rect(center=(self.screen_width // 2, 50))  # Centrado en la parte superior
+        icon = pygame.transform.scale(icon, (100, 100))  
+        logo_rect = icon.get_rect(center=(self.screen_width // 2, 50))  
         self.screen.blit(icon, logo_rect)
 
-        # Título "RetoTico" debajo del logo
         try:
             titulo_texto = self.title_font.render("RetoTico", True, self.colors["text"])
             titulo_rect = titulo_texto.get_rect(center=(self.screen_width // 2, logo_rect.bottom + 10))
@@ -106,10 +133,8 @@ class Menu:
         except Exception as e:
             print(f"Error al renderizar el texto: {e}")
 
-        # Espacio entre el título y las opciones del menú (ajusta este valor como necesites)
         espacio_entre_titulo_y_opciones = 100
 
-        # Mostrar las opciones del menú, ajustando el espacio con la variable
         for i, opcion in enumerate(self.options):
             icon = self.icons.get(opcion)
             if icon:

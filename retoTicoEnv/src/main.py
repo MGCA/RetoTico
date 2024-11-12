@@ -27,7 +27,9 @@ def main():
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # Aquí agregamos el manejo del clic
+                menu.handle_events(event)
                 menu.handle_click(event.pos)
+                
 
         # Redibujar el menú cada ciclo
         menu.show()

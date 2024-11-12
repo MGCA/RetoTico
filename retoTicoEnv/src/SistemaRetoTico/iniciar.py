@@ -87,6 +87,7 @@ class Iniciar:
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
+                    menu.handle_events(event)
                     menu.handle_click(event.pos)
 
     def update_screen(self):

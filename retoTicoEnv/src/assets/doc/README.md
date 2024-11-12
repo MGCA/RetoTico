@@ -14,6 +14,10 @@ Para abrir el archivo .exe de la aplicación Reto Tico y evitar problemas con po
 1. Ubica el archivo .exe
 Navega hasta la carpeta donde has guardado el archivo .exe de Reto Tico.
 
+********ACTUALIZACIONES***********************
+Si ya has usado el juego y descargo una nueva version del juego dirigirse al disco "C:" buscar la carpeta "users" o usuarios, y buscar el archivo "retotico.bd" 
+y borrarla, esto borrara todos los usuarios, preguntas, respuestas, imagenes e historial de juegos.
+
 2. Ejecuta el archivo como administrador
 Haz clic derecho sobre el archivo .exe.
 Selecciona "Ejecutar como administrador" para darle los permisos necesarios al programa.

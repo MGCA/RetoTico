@@ -101,6 +101,7 @@ class MostrarJugadores:
                         if event.type == pygame.QUIT:
                             running = False
                         elif event.type == pygame.MOUSEBUTTONDOWN:
+                            menu.handle_events(event)
                             menu.handle_click(event.pos)
             else:
                 for jugador in self.jugadores:
